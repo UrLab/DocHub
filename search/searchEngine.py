@@ -52,7 +52,7 @@ def search(docs,requestUser,searchTerm):
 if __name__=="__main__":
     docs=Document.objects
     
-    requestUser=User.objects.get(netid="adesanjo")
+    requestUser=User.objects.get(netid="adrian")
 
     print(requestUser.following())
     
