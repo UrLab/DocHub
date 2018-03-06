@@ -11,18 +11,22 @@ def value(doc):
 
 def filterDocs(docs,noMatch,terms):
     sm=SequenceMatcher(None,"","")
-    for doc in docs:
+    d=0
+    while d<len(docs):
+        doc=docs[d]
+        d+=1
         match=False
         for i in range(len(doc.name)-1):
             for j in range(i+1,len(doc.name)):
                 for term in terms:
                     if not match:
-                        sm.set_seqs(doc.name[i:j+1].lower(),term)
-                        if sm.ratio()>0.75 or term=="":
+                        sm.set_seqs(doc.name[i:j+1].lower().strip(),term.strip())
+                        if sm.ratio()>0.7 or term.strip()=="":
                             match=True
         if not match:
             docs.remove(doc)
             noMatch.append(doc)
+            d-=1
 
 def orderDocs(docs):
     orderedDocs=list(docs)
@@ -79,8 +83,9 @@ if __name__=="__main__":
     
     results=search(docs,requestUser,searchTerm)
     
-    for result in results:
+    for i,result in enumerate(results):
         print("\n-----\n")
+        print(["MATCH FOLLOWING","MATCH NOT FOLLOWING","NO MATCH FOLLOWING","NO MATCH NOT FOLLOWING"][i])
 
         print(len(result))
         print(result)
