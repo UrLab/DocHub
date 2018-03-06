@@ -1,11 +1,27 @@
 from documents.models import Document
 from users.models import User
+from difflib import SequenceMatcher
 import datetime
 
 today=datetime.datetime.now()
 
 def value(doc):
     return (20*doc.downloads/((((today-doc.created.replace(tzinfo=None)).days)//365+1)**0.5)+doc.views)
+    # TODO use upvotes and downvotes
+
+def filterDocs(docs,terms):
+    sm=SequenceMatcher(None,"","")
+    for doc in docs:
+        match=False
+        for i in range(len(doc)-1):
+            for j in range(i+1,len(doc)):
+                for term in terms:
+                    if not match:
+                        sm.set_seqs(doc.name[i:j+1],term)
+                        if sm.ratio()>0.75:
+                            match=True
+        if not match:
+            docs.remove(doc)
 
 def orderDocs(docs):
     orderedDocs=list(docs)
@@ -39,14 +55,13 @@ def genVowelVariants(searchTerm,i=0):
 
 def search(docs,requestUser,searchTerm):
     visibleDocs=docs.exclude(hidden=True)
-    following=set()
-    notFollowing=set()
+    following=list(visibleDocs.filter(course__in=requestUser.following()))
+    notFollowing=list(visibleDocs.exclude(course__in=requestUser.following()))
     terms=genVowelVariants(searchTerm.lower())
-    for term in terms:
-        results=visibleDocs.filter(name__icontains=term)
-        following=following.union(set(results.filter(course__in=requestUser.following())))
-        notFollowing=notFollowing.union(set(results.exclude(course__in=requestUser.following())))
-    
+
+    filterDocs(following,terms)
+    filterDocs(notFollowing,terms)
+
     return [orderDocs(following),orderDocs(notFollowing)]
 
 if __name__=="__main__":
