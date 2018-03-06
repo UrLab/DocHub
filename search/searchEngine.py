@@ -9,19 +9,20 @@ def value(doc):
     return (20*doc.downloads/((((today-doc.created.replace(tzinfo=None)).days)//365+1)**0.5)+doc.views)
     # TODO use upvotes and downvotes
 
-def filterDocs(docs,terms):
+def filterDocs(docs,noMatch,terms):
     sm=SequenceMatcher(None,"","")
     for doc in docs:
         match=False
-        for i in range(len(doc)-1):
-            for j in range(i+1,len(doc)):
+        for i in range(len(doc.name)-1):
+            for j in range(i+1,len(doc.name)):
                 for term in terms:
                     if not match:
-                        sm.set_seqs(doc.name[i:j+1],term)
-                        if sm.ratio()>0.75:
+                        sm.set_seqs(doc.name[i:j+1].lower(),term)
+                        if sm.ratio()>0.75 or term=="":
                             match=True
         if not match:
             docs.remove(doc)
+            noMatch.append(doc)
 
 def orderDocs(docs):
     orderedDocs=list(docs)
@@ -59,10 +60,13 @@ def search(docs,requestUser,searchTerm):
     notFollowing=list(visibleDocs.exclude(course__in=requestUser.following()))
     terms=genVowelVariants(searchTerm.lower())
 
-    filterDocs(following,terms)
-    filterDocs(notFollowing,terms)
+    fNoMatch=[]
+    nfNoMatch=[]
 
-    return [orderDocs(following),orderDocs(notFollowing)]
+    filterDocs(following,fNoMatch,terms)
+    filterDocs(notFollowing,nfNoMatch,terms)
+
+    return [orderDocs(following),orderDocs(notFollowing),orderDocs(fNoMatch),orderDocs(nfNoMatch)]
 
 if __name__=="__main__":
     docs=Document.objects
@@ -75,14 +79,10 @@ if __name__=="__main__":
     
     results=search(docs,requestUser,searchTerm)
     
-    print(len(results[0]))
-    print(results[0])
-    print()
-    print([str(doc.course) for doc in results[0]])
+    for result in results:
+        print("\n-----\n")
 
-    print("\n-----\n")
-
-    print(len(results[1]))
-    print(results[1])
-    print()
-    print([str(doc.course) for doc in results[1]])
+        print(len(result))
+        print(result)
+        print()
+        print([str(doc.course) for doc in result])
