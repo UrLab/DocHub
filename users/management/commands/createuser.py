@@ -27,7 +27,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        netid = raw_input("Username (default: %s): " % getuser()) if options["netid"] is None else options["netid"]
+        netid = input("Username (default: %s): " % getuser()) if options["netid"] is None else options["netid"]
         if not netid:
             netid = getuser()
 
@@ -35,11 +35,11 @@ class Command(BaseCommand):
         if not password:
             password = 'test'
 
-        first_name = raw_input("Firstname (default: John): ") if options["first_name"] is None else options["first_name"]
+        first_name = input("Firstname (default: John): ") if options["first_name"] is None else options["first_name"]
         if not first_name:
             first_name = "John"
 
-        last_name = raw_input("Lastname (default: Smith): ") if options["last_name"] is None else options["last_name"]
+        last_name = input("Lastname (default: Smith): ") if options["last_name"] is None else options["last_name"]
         if not last_name:
             last_name = "Smith"
 

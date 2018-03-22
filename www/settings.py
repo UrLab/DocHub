@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from www.config import *
 
+ALLOWED_HOSTS=["*"]
+
 # Do not write anything here !
 # Configuration must be written in www/config/
 # 	- django_default.py if it is a non-project related setting

@@ -6,10 +6,12 @@ import datetime
 today=datetime.datetime.now()
 
 def value(doc):
-    return (20*doc.downloads/((((today-doc.created.replace(tzinfo=None)).days)//365+1)**0.5)+doc.views)
-    # TODO use upvotes and downvotes
+    votes=doc.votes
+    val=(20*doc.downloads/((((today-doc.created.replace(tzinfo=None)).days)//365+1)**0.5)+doc.views+1)*(votes["upvotes"]+1)/(votes["downvotes"]+1)
+    #print(doc,val)
+    return -val
 
-def filterDocs(docs,noMatch,terms):
+def filterDocs(docs,noMatch,term):
     sm=SequenceMatcher(None,"","")
     d=0
     while d<len(docs):
@@ -18,11 +20,10 @@ def filterDocs(docs,noMatch,terms):
         match=False
         for i in range(len(doc.name)-1):
             for j in range(i+1,len(doc.name)):
-                for term in terms:
-                    if not match:
-                        sm.set_seqs(doc.name[i:j+1].lower().strip(),term.strip())
-                        if sm.ratio()>0.7 or term.strip()=="":
-                            match=True
+                if not match:
+                    sm.set_seqs(getBaseVowels(doc.name[i:j+1].lower().strip()),term.strip())
+                    if sm.ratio()>0.7 or term.strip()=="":
+                        match=True
         if not match:
             docs.remove(doc)
             noMatch.append(doc)
@@ -33,42 +34,31 @@ def orderDocs(docs):
     orderedDocs.sort(key=value)
     return orderedDocs
 
-def genVowelVariants(searchTerm,i=0):
-    terms=[searchTerm]
-    while i<len(searchTerm):
-        if searchTerm[i] not in {"a","à","e","é","è","ê","i","î","o","ô","u","ù","û"}:
-            i+=1
-            continue
-        c=searchTerm[i]
-        if c in {"a","à"}:
-            for ch in ["a","à"]:
-                terms+=genVowelVariants(searchTerm[:i]+ch+searchTerm[i+1:],i+1)
-        elif c in {"e","é","è","ê"}:
-            for ch in ["e","é","è","ê"]:
-                terms+=genVowelVariants(searchTerm[:i]+ch+searchTerm[i+1:],i+1)
-        elif c in {"i","î"}:
-            for ch in ["i","î"]:
-                terms+=genVowelVariants(searchTerm[:i]+ch+searchTerm[i+1:],i+1)
-        elif c in {"o","ô"}:
-            for ch in ["o","ô"]:
-                terms+=genVowelVariants(searchTerm[:i]+ch+searchTerm[i+1:],i+1)
-        elif c in {"u","ù","û"}:
-            for ch in ["u","ù","û"]:
-                terms+=genVowelVariants(searchTerm[:i]+ch+searchTerm[i+1:],i+1)
-        i+=1
-    return list(set(terms))
+def getBaseVowels(term):
+    res=term
+    for ch in ["a","à"]:
+        res=res.replace(ch,"a")
+    for ch in ["e","é","è","ê"]:
+        res=res.replace(ch,"e")
+    for ch in ["i","î"]:
+        res=res.replace(ch,"i")
+    for ch in ["o","ô"]:
+        res=res.replace(ch,"o")
+    for ch in ["u","ù","û"]:
+        res=res.replace(ch,"u")
+    return res
 
 def search(docs,requestUser,searchTerm):
     visibleDocs=docs.exclude(hidden=True)
     following=list(visibleDocs.filter(course__in=requestUser.following()))
     notFollowing=list(visibleDocs.exclude(course__in=requestUser.following()))
-    terms=genVowelVariants(searchTerm.lower())
+    term=getBaseVowels(searchTerm.lower())
 
     fNoMatch=[]
     nfNoMatch=[]
 
-    filterDocs(following,fNoMatch,terms)
-    filterDocs(notFollowing,nfNoMatch,terms)
+    filterDocs(following,fNoMatch,term)
+    filterDocs(notFollowing,nfNoMatch,term)
 
     return [orderDocs(following),orderDocs(notFollowing),orderDocs(fNoMatch),orderDocs(nfNoMatch)]
 
