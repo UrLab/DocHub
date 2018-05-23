@@ -20,6 +20,9 @@ module.exports = {
         styles: [
             './assets/styles/index.js',
         ],
+        profile: [
+            './assets/profile/index.js',
+        ],
     },
 
     output: {
