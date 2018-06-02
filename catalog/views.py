@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-import json
 from functools import partial
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.views.generic.detail import DetailView
-from django.views.decorators.cache import cache_page
-from mptt.utils import get_cached_trees
 from django.utils import timezone
 
 from actstream import actions
 
 from catalog.models import Category, Course
 from catalog.suggestions import suggest
-from catalog.forms import SearchForm
-import search.logic
 
 
 class CategoryDetailView(LoginRequiredMixin, DetailView):
@@ -82,58 +76,8 @@ def show_courses(request):
     })
 
 
-@cache_page(60 * 60)
-@login_required
-def course_tree(request):
-    def course(node):
-        return {
-            'name': node.name,
-            'id': node.id,
-            'slug': node.slug,
-        }
-
-    def category(node):
-        return {
-            'name': node.name,
-            'id': node.id,
-            'children': list(map(category, node.get_children())),
-            'courses': list(map(course, node.course_set.all())),
-        }
-
-    categories = list(map(category, get_cached_trees(Category.objects.prefetch_related('course_set').all())))
-    return HttpResponse(json.dumps(categories),
-                        content_type="application/json")
-
-
 @login_required
 def unfollow_all_courses(request):
     for course in request.user.following_courses():
         actions.unfollow(request.user, course)
     return redirect("show_courses")
-
-
-@login_required
-def search_course(request):
-    if request.method == 'POST':
-        form = SearchForm(request.POST)
-
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            results = search.logic.search_course(name)
-
-        else:
-            form = SearchForm()
-            results = []
-    else:
-        form = SearchForm()
-        results = []
-
-    if len(results) == 1:
-        # We have only one result, redirect immediately to the course
-        course = results[0]
-        return HttpResponseRedirect(reverse('course_show', args=[course.slug]))
-
-    return render(request, 'catalog/course_search.html', {
-        'form': form,
-        'results': results,
-    })

@@ -12,7 +12,6 @@ from telepathy.models import Thread
 from documents.models import Document
 from users.models import User
 from users.authBackend import NetidBackend
-from catalog.forms import SearchForm
 from catalog.models import Category
 
 
@@ -22,7 +21,6 @@ def index(request):
         ndocs = max(5, len(following))
         docs = Document.objects.filter(course__in=following).order_by("-created")[:ndocs]
         context = {
-            'search': SearchForm(),
             'stream': user_stream(request.user).exclude(verb="started following")[:10],
             'recent_docs': docs,
             'faculties': Category.objects.get(level=0).children.all()
@@ -34,6 +32,7 @@ def index(request):
             return int((num // r) * r)
 
         page_count = Document.objects.all().aggregate(Sum('pages'))['pages__sum']
+        page_count = 0 if page_count is None else page_count
 
         context = {
             "login_url": NetidBackend.login_url(""),

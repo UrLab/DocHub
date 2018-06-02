@@ -64,7 +64,7 @@ class Document(models.Model):
 
     @property
     def is_pdf(self):
-        return self.file_type in ('.pdf', 'application/pdf')
+        return self.file_type == '.pdf'
 
     @property
     def votes(self):

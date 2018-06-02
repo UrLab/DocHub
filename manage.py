@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import os
 import sys
+
+assert sys.version_info >= (3, 3), "Dochub must run with Python >=3.3"
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "www.settings")
