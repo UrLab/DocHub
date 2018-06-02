@@ -14,7 +14,7 @@ def test_create():
     assert u.netid == "glagaffe"
     assert u.email == "a@dupis.be"
     assert u.comment == "trop nul"
-    assert u.is_staff is False
+    assert u.is_superuser is False
 
 
 def test_create_superuser():
@@ -27,7 +27,7 @@ def test_create_superuser():
     assert u.netid == "glagaffe"
     assert u.email == "a@dupis.be"
     assert u.comment == "trop nul"
-    assert u.is_staff is True
+    assert u.is_superuser is True
 
 
 def test_name():

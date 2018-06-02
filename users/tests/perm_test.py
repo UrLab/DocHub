@@ -44,7 +44,7 @@ def other_user():
 
 
 def test_superuser(user, other_user):
-    user.is_staff = True
+    user.is_superuser = True
     user.save()
     doc = Document.objects.create(user=other_user)
     assert user.write_perm(doc)

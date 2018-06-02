@@ -60,6 +60,7 @@ INSTALLED_APPS += (
     'webpack_loader',
     'rest_framework.authtoken',
     'django.contrib.postgres',
+    'rules',
 )
 
 SITE_ID = 1
@@ -96,6 +97,7 @@ STATICFILES_FINDERS = (
 
 
 AUTHENTICATION_BACKENDS = (
+    'rules.permissions.ObjectPermissionBackend',
     'users.authBackend.NetidBackend',
     'django.contrib.auth.backends.ModelBackend',
 )

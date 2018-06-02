@@ -8,7 +8,9 @@ import itertools
 import collections
 
 from django.db import models
+from django.contrib import auth
 from django.contrib.auth.models import AbstractBaseUser, UserManager
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.conf import settings
 import actstream
@@ -45,11 +47,55 @@ class CustomUserManager(UserManager):
         return self._create_user(netid, email, password, **extra_fields)
 
     def create_superuser(self, netid, email, password, **extra_fields):
-        return self._create_user(netid, email, password, is_staff=True, **extra_fields)
+        return self._create_user(netid, email, password, is_superuser=True, **extra_fields)
 
 
-class User(AbstractBaseUser):
+class BaseUser(AbstractBaseUser):
+    class Meta:
+        abstract = True
 
+    # Those 4 methods are needed for the Django Admin
+    def has_perms(self, perm_list, obj=None):
+        return all(self.has_perm(perm, obj) for perm in perm_list)
+
+    def has_module_perms(self, module):
+        for backend in auth.get_backends():
+            if not hasattr(backend, 'has_module_perms'):
+                continue
+            try:
+                if backend.has_module_perms(self, module):
+                    return True
+            except PermissionDenied:
+                return False
+        return False
+
+    def is_staff(self):
+        return self.is_superuser
+
+    def has_perm(self, perm, obj=None):
+        """
+        Return True if the user has the specified permission. Query all
+        available auth backends, but return immediately if any backend returns
+        True. Thus, a user who has permission from a single auth backend is
+        assumed to have permission in general. If an object is provided, check
+        permissions for that object.
+        """
+        # Active superusers have all permissions.
+        if self.is_active and self.is_superuser:
+            return True
+
+        for backend in auth.get_backends():
+            if not hasattr(backend, 'has_perm'):
+                continue
+            try:
+                if backend.has_perm(self, perm, obj):
+                    return True
+            except PermissionDenied:
+                return False
+        return False
+
+
+class User(BaseUser):
     USERNAME_FIELD = 'netid'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     DEFAULT_PHOTO = join(settings.STATIC_URL, "images/default.jpg")
@@ -69,7 +115,7 @@ class User(AbstractBaseUser):
     inferred_faculty = models.TextField(blank=True)
     inscription_faculty = models.TextField(blank=True)
 
-    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     is_academic = models.BooleanField(default=False)
     is_representative = models.BooleanField(default=False)
 
@@ -107,25 +153,6 @@ class User(AbstractBaseUser):
         if self._following_courses is None:
             self._following_courses = actstream.models.following(self, Course)
         return [x for x in self._following_courses if x]
-
-    def has_module_perms(self, *args, **kwargs):
-        return True # TODO : is this a good idea ?
-
-    def has_perm(self, perm_list, obj=None):
-        return self.is_staff
-
-    def write_perm(self, obj):
-        if self.is_staff:
-            return True
-
-        if obj is None:
-            return False
-
-        if self._moderated_courses is None:
-            ids = [course.id for course in self.moderated_courses.only('id')]
-            self._moderated_courses = ids
-
-        return obj.write_perm(self, self._moderated_courses)
 
     def fullname(self):
         return self.name
