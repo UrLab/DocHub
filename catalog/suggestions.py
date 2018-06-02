@@ -1,3 +1,10 @@
+"""
+Semi-intelligent algorithm to try to find similar courses
+to the ones a user is already subsribed to.
+Uses a k-NN with a vecotor of boolean (subscribed or not) for each course
+as the feature vector.
+"""
+
 from catalog.models import Course
 import collections
 from django.contrib.contenttypes.models import ContentType
