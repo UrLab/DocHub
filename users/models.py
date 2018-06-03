@@ -8,9 +8,7 @@ import itertools
 import collections
 
 from django.db import models
-from django.contrib import auth
-from django.contrib.auth.models import AbstractBaseUser, UserManager
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
 from django.utils import timezone
 from django.conf import settings
 import actstream
@@ -50,52 +48,7 @@ class CustomUserManager(UserManager):
         return self._create_user(netid, email, password, is_superuser=True, **extra_fields)
 
 
-class BaseUser(AbstractBaseUser):
-    class Meta:
-        abstract = True
-
-    # Those 4 methods are needed for the Django Admin
-    def has_perms(self, perm_list, obj=None):
-        return all(self.has_perm(perm, obj) for perm in perm_list)
-
-    def has_module_perms(self, module):
-        for backend in auth.get_backends():
-            if not hasattr(backend, 'has_module_perms'):
-                continue
-            try:
-                if backend.has_module_perms(self, module):
-                    return True
-            except PermissionDenied:
-                return False
-        return False
-
-    def is_staff(self):
-        return self.is_superuser
-
-    def has_perm(self, perm, obj=None):
-        """
-        Return True if the user has the specified permission. Query all
-        available auth backends, but return immediately if any backend returns
-        True. Thus, a user who has permission from a single auth backend is
-        assumed to have permission in general. If an object is provided, check
-        permissions for that object.
-        """
-        # Active superusers have all permissions.
-        if self.is_active and self.is_superuser:
-            return True
-
-        for backend in auth.get_backends():
-            if not hasattr(backend, 'has_perm'):
-                continue
-            try:
-                if backend.has_perm(self, perm, obj):
-                    return True
-            except PermissionDenied:
-                return False
-        return False
-
-
-class User(BaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'netid'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     DEFAULT_PHOTO = join(settings.STATIC_URL, "images/default.jpg")
@@ -130,6 +83,9 @@ class User(BaseUser):
         self._following_courses = None
         self._moderated_courses = None
         super(User, self).__init__(*args, **kwargs)
+
+    def is_staff(self):
+            return self.is_superuser
 
     @property
     def get_photo(self):

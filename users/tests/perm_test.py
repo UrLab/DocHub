@@ -47,17 +47,17 @@ def test_superuser(user, other_user):
     user.is_superuser = True
     user.save()
     doc = Document.objects.create(user=other_user)
-    assert user.write_perm(doc)
+    assert user.has_perm('documents.edit', doc)
 
 
 def test_other_user(user, other_user):
     doc = Document.objects.create(user=user)
-    assert not other_user.write_perm(doc)
+    assert not other_user.has_perm('documents.edit', doc)
 
 
 def test_owner(user):
     doc = Document.objects.create(user=user)
-    assert user.write_perm(doc)
+    assert user.has_perm('documents.edit', doc)
 
 
 def test_moderator(user, other_user, tree):
@@ -65,7 +65,7 @@ def test_moderator(user, other_user, tree):
     user.moderated_courses.add(course)
 
     doc = Document.objects.create(user=other_user, course=course)
-    assert user.write_perm(doc)
+    assert user.has_perm('documents.edit', doc)
 
 
 def test_bad_moderator(user, other_user, tree):
@@ -76,7 +76,7 @@ def test_bad_moderator(user, other_user, tree):
     user.moderated_courses.add(course)
 
     doc = Document.objects.create(user=other_user, course=other_course)
-    assert not user.write_perm(doc)
+    assert not user.has_perm('documents.edit', doc)
 
 
 # TODO : do the same for threads and messages
