@@ -60,7 +60,7 @@ INSTALLED_APPS += (
     'webpack_loader',
     'rest_framework.authtoken',
     'django.contrib.postgres',
-    'rules',
+    'rules.apps.AutodiscoverRulesConfig',
 )
 
 SITE_ID = 1

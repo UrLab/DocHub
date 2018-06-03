@@ -78,7 +78,7 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_has_perm(self, document):
         user = self.context['request'].user
-        return user.write_perm(obj=document)
+        return user.has_perm("documents.edit", obj=document)
 
     def get_file_size(self, document):
         try:

@@ -131,15 +131,6 @@ class Document(models.Model):
     def get_absolute_url(self):
         return reverse('document_show', args=(self.id, ))
 
-    def write_perm(self, user, moderated_courses):
-        if user.id == self.user_id:
-            return True
-
-        if self.course_id in moderated_courses:
-            return True
-
-        return False
-
     def tag_from_name(self):
         tags = logic.tags_from_name(self.name)
         self.tags.add(*tags)

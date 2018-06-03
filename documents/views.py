@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.core.exceptions import PermissionDenied
 from django.conf import settings
 
 
@@ -23,6 +24,9 @@ from documents import logic
 
 @login_required
 def upload_file(request, slug):
+    if not request.user.has_perm("documents.upload"):
+        raise PermissionDenied()
+
     course = get_object_or_404(Course, slug=slug)
 
     if request.method == 'POST':
@@ -70,6 +74,9 @@ def upload_file(request, slug):
 
 @login_required
 def upload_multiple_files(request, slug):
+    if not request.user.has_perm("documents.upload"):
+        raise PermissionDenied()
+
     course = get_object_or_404(Course, slug=slug)
 
     if request.method == 'POST':
@@ -101,8 +108,8 @@ def upload_multiple_files(request, slug):
 def document_edit(request, pk):
     doc = get_object_or_404(Document, id=pk)
 
-    if not request.user.write_perm(obj=doc):
-        return HttpResponse('You may not edit this document.', status=403)
+    if not request.user.has_perm("documents.edit", doc):
+        raise PermissionDenied()
 
     if request.method == 'POST':
         if settings.READ_ONLY:
@@ -141,8 +148,8 @@ def document_edit(request, pk):
 def document_reupload(request, pk):
     document = get_object_or_404(Document, pk=pk)
 
-    if not request.user.write_perm(obj=document):
-        return HttpResponse('You may not edit this document.', status=403)
+    if not request.user.has_perm("documents.reupload", document):
+        raise PermissionDenied()
 
     if document.state != "DONE":
         return HttpResponse('You may not edit this document while it is processing.', status=403)

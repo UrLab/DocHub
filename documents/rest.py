@@ -5,28 +5,16 @@ from django.http import HttpResponse
 from django.db.models import F
 
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework import status
-from rest_framework import permissions
+from rest_framework.exceptions import PermissionDenied
 from www.rest import VaryModelViewSet
 
 from documents.serializers import DocumentSerializer, UploadDocumentSerializer, EditDocumentSerializer
 from documents.models import Document, Vote
 
 
-class DocumentAccessPermission(permissions.IsAuthenticated):
-    def has_object_permission(self, request, view, obj):
-        if view.action == 'vote': # FIXME : hardcoded check is bad
-            return True
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return request.user.write_perm(obj=obj)
-
-
 class DocumentViewSet(VaryModelViewSet):
-    permission_classes = (DocumentAccessPermission,)
-
     queryset = Document.objects.filter(hidden=False)\
         .select_related("course", 'user')\
         .prefetch_related('tags', 'vote_set')\
@@ -35,7 +23,7 @@ class DocumentViewSet(VaryModelViewSet):
     create_serializer_class = UploadDocumentSerializer
     update_serializer_class = EditDocumentSerializer
 
-    @detail_route()
+    @action(detail=True)
     def original(self, request, pk):
         document = self.get_object()
         body = document.original.read()
@@ -49,7 +37,7 @@ class DocumentViewSet(VaryModelViewSet):
         document.save(update_fields=['downloads'])
         return response
 
-    @detail_route()
+    @action(detail=True)
     def pdf(self, request, pk):
         document = self.get_object()
         body = document.pdf.read()
@@ -61,9 +49,11 @@ class DocumentViewSet(VaryModelViewSet):
         document.save(update_fields=['views'])
         return response
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def vote(self, request, pk):
         document = self.get_object()
+        if not request.user.has_perm("documents.vote", document):
+            raise PermissionDenied()
 
         vote, created = Vote.objects.get_or_create(document=document, user=request.user)
         vote.vote_type = request.data["vote_type"]
@@ -73,6 +63,9 @@ class DocumentViewSet(VaryModelViewSet):
 
     def destroy(self, request, pk=None):
         document = self.get_object()
+        if not request.user.has_perm("documents.delete", document):
+            raise PermissionDenied()
+
         document.hidden = True
         document.save()
 
