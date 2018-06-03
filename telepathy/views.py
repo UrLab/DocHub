@@ -5,7 +5,8 @@ import json
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from actstream import action, actions
 
@@ -102,8 +103,8 @@ def edit_message(request, pk):
     message = get_object_or_404(Message, pk=pk)
     thread = message.thread
 
-    if not request.user.write_perm(obj=message):
-        return HttpResponse('You may not edit this message.', status=403)
+    if not request.user.has_perm('messages.edit', message):
+        raise PermissionDenied()
 
     if request.method == 'POST':
         form = MessageForm(request.POST)

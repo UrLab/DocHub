@@ -1,6 +1,6 @@
 {% load humanize %}
 {% load custommardown %}
-{% load has_perm_on %}
+{% load rules %}
 
 <div class="row user-message">
   <div class="large-1 show-for-large-up columns ">
@@ -27,7 +27,8 @@
         {% if message.user.is_academic %}
           <span class="label radius sh-space">Académique</span>
         {% endif %}
-        {% if request.user|has_perm_on:message %}
+        {% has_perm 'messages.edit' request.user message as can_edit %}
+        {% if can_edit %}
           <a href="{% url 'edit_message' message.id %}#message-edit" class="sh-space"><i class="fi-pencil dark-grey"></i></a>
           <!-- <a href="#" class="sh-space"><i class="fi-x dark-grey"></i></a> -->
         {% endif %}
