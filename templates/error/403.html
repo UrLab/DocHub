@@ -2,7 +2,10 @@
 {% load humanize %}
 
 {% block title %}Erreur 403{% endblock %}
-{% block expl %}
-<h3>Erreur 403 : accès non autorisé</h3>
-<p>Vous n'avez pas accès à cette page. Ceci est surement du à des privilèges insuffisants.</p>
+{% block body %}
+<p><b>403.</b> <span class="slight">C'est une erreur.</span></p>
+<p>
+    Vous n'avez pas le droit d'accéder à l'URL {{request.get_full_path}}<br>
+</p>
+<p class="light">That's all we know.</p>
 {% endblock %}
