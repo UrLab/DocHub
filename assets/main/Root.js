@@ -4,11 +4,10 @@ import Home from "./Home.js";
 import Index from "./IndexPage.js"
 
 const Root = () => {
-  const { user: {is_authenticated} } = StoreContainer.useContainer();
-  console.log(is_authenticated)
+  const { store: {user} } = StoreContainer.useContainer();
   return (
     <div>
-      { is_authenticated ?
+      { user.is_authenticated ?
         <Home />
       :
         <Index />

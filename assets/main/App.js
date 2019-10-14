@@ -1,6 +1,6 @@
 "use strict";
 
-import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,7 +13,7 @@ import Syslogin from './Syslogin.js';
 import Footer from './Footer.js';
 import { StoreContainer } from "./store";
 
-const BodyComp = (props) => {
+const ContentComp = props => {
 
   const {store, setStore} = StoreContainer.useContainer();
 
@@ -70,13 +70,13 @@ const BodyComp = (props) => {
   )
 }
 
-const Body = withRouter(BodyComp);
+const Content = withRouter(ContentComp);
 
 const App = () => {
   return (
     <StoreContainer.Provider>
       <Router>
-        <Body />
+        <Content />
       </Router>
     </StoreContainer.Provider>
   );
