@@ -49,11 +49,14 @@
     "js-cookie": "^2.2.0",
     "markdown": "^0.5.0",
     "moment": "^2.22.1",
+    "pdfjs-dist": "^2.2.228",
     "prepack-webpack-plugin": "^1.1.0",
     "prop-types": "^15.6.1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.3",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-pdf": "^3.0.5",
-    "react-select": "^1.2.1"
+    "react-router-dom": "^5.1.2",
+    "react-select": "^1.2.1",
+    "unstated-next": "^1.1.0"
   }
 }

@@ -20,23 +20,24 @@ module.exports = {
         styles: [
             './assets/styles/index.js',
         ],
-        search: [
-            'babel-polyfill',
-            './assets/search/index.js',
-        ],
+        main: [
+          'babel-polyfill',
+          './assets/main/index.js',
+        ]
     },
-
     output: {
         path: path.resolve('./static/scripts/'),
         filename: '[name]-[hash].js',
         publicPath: "/static/scripts/",
         sourceMapFilename: "[name]-[hash].js.map",
     },
-
     plugins: [
         new BundleTracker({filename: './webpack-stats.json'}),
+        new webpack.ProvidePlugin({
+          $: 'jquery',
+          jQuery: 'jquery'
+        })
     ],
-
     optimization: {
         splitChunks: {
             cacheGroups: {
@@ -48,7 +49,6 @@ module.exports = {
             }
         },
     },
-
     module: {
         rules: [
             {
@@ -73,7 +73,6 @@ module.exports = {
             },
         ],
     },
-
     resolve: {
         modules: ['node_modules'],
         extensions: ['.js']

@@ -43,7 +43,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'is_academic',
             'avatar',
             'token',
-            'followed_courses'
+            'followed_courses',
+            'notification_count',
+            'welcome',
+            'is_authenticated'
         )
 
         extra_kwargs = {

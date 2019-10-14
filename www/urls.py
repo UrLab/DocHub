@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
-from django.contrib.auth.views import logout, login
+from django.contrib.auth.views import logout
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.sitemaps.views import sitemap
@@ -22,19 +22,35 @@ sitemaps = {
     'document': DocumentSitemap,
 }
 
+# wrapper to automatically redirect requests with not-matching methods
+# 'mf' stands for 'method filtered'
+def mf_redirect_to(redirect_view):
+    def mf_path(str_path, view, methods, **kwargs):
+        def view_wrapper(req, *view_args, **view_kwargs):
+            real_view = redirect_view if req.method not in methods else view
+            return real_view(req, *view_args, **view_kwargs)
+        return path(str_path, view_wrapper, **kwargs)
+    return mf_path
+
+mf_path = mf_redirect_to(www.views.index)
+
 urlpatterns = [
     path("", www.views.index, name="index"),
+
+    path("spa/", include("www.spa_urls")),
+
+    path("admin/", admin.site.urls),
+    path("api/", include("www.rest_urls")),
 
     path("catalog/", include("catalog.urls")),
     path("documents/", include("documents.urls")),
     path("telepathy/", include("telepathy.urls")),
     path("users/", include("users.urls")),
     path("notifications/", include("notifications.urls")),
-    path("admin/", admin.site.urls),
-    path("api/", include("www.rest_urls")),
+
     path("jsreverse/", django_js_reverse.views.urls_js, name='js_reverse'),
 
-    path("syslogin", login, {"template_name": "syslogin.html"}, name="syslogin"),
+    mf_path("syslogin", www.views.login, ["POST"], name="syslogin"),
     path("auth", users.views.auth),
     path("logout", logout, {"next_page": "/"}, name="logout"),
 
@@ -49,6 +65,7 @@ urlpatterns = [
         "sitemap\.xml", sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'
     ),
+    re_path(r'.*', www.views.index)
 ]
 
 handler400 = 'www.error.error400'
