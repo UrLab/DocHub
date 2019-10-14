@@ -10,15 +10,29 @@ from django.urls import reverse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.contrib.auth import authenticate, login
 from django.conf import settings
 
 from rest_framework.authtoken.models import Token
 from actstream.models import actor_stream
+from www.serializers import FeedSerializer
+from users.serializers import UserSerializer
+from www.helpers import get_messages
 
 from users.forms import SettingsForm
 
+@login_required
+def spa_user_settings(request):
+    token, _created = Token.objects.get_or_create(user=request.user)
+    stream = actor_stream(request.user)[:5]
+    feedSerial = FeedSerializer(stream, many=True)
+    userSerial = UserSerializer(request.user, context={'request': request})
+    return JsonResponse(dict(
+        user = userSerial.data,
+        stream = feedSerial.data,
+        token = token.serializable_value("key"),
+    ))
 
 @login_required
 def user_settings(request):
@@ -38,18 +52,12 @@ def user_settings(request):
 
             messages.success(request, 'Ton profil a été mis à jour.')
 
-            return render(request, "users/settings.html", {'form': SettingsForm()})
-    else:
-        form = SettingsForm()
-
-    token, created = Token.objects.get_or_create(user=request.user)
-
-    return render(request, 'users/settings.html', {
-        'form': form,
-        'stream': actor_stream(request.user)[:5],
-        'token': token,
-    })
-
+            return JsonResponse(dict(
+                messages = get_messages(request)
+            ))
+        else:
+            errors = get_form_errors(form)
+            return JsonResponse(dict(errors=errors), status=500)
 
 @login_required
 def reset_token(request):
@@ -57,7 +65,9 @@ def reset_token(request):
     Token.objects.create(user=request.user)
     messages.success(request, "La clé d'API a été regénérée")
 
-    return HttpResponseRedirect(reverse('settings'))
+    return JsonResponse(dict(
+        messages = get_messages(request)
+    ))
 
 
 @login_required

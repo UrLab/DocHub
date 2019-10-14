@@ -46,7 +46,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'followed_courses',
             'notification_count',
             'welcome',
-            'is_authenticated'
+            'is_authenticated',
+            'get_photo'
         )
 
         extra_kwargs = {

@@ -10,6 +10,7 @@ import {
 import Nav from './Nav.js';
 import Root from './Root.js';
 import Syslogin from './Syslogin.js';
+import UserSettings from './UserSettings.js';
 import Footer from './Footer.js';
 import { StoreContainer } from "./store";
 
@@ -26,6 +27,7 @@ const ContentComp = props => {
 
   useEffect(() => {
     props.history.listen((loc, act) => {
+      setIsLoading(true)
       // console.log("fireSignal")
       fireSignal()
     })
@@ -36,7 +38,6 @@ const ContentComp = props => {
 
   useEffect(() => {
     // console.log("fetch")
-    setIsLoading(true)
     const fetchData = async () => {
       try {
         const res = await fetch("/spa"+props.location.pathname, {});
@@ -61,8 +62,9 @@ const ContentComp = props => {
       <Nav/>
       <div className="row">
         <Switch>
-          <Route exact path="/" component={Root} />
-          <Route path="/syslogin" component={Syslogin} />
+          <Route exact path="/" component={ Root } />
+          <Route path={ Urls['syslogin']() } component={ Syslogin } />
+          <Route path={ Urls['settings']() } component={ UserSettings } />
         </Switch>
       </div>
       <Footer/>

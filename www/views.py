@@ -35,7 +35,6 @@ def spa_index(request):
     else:
         page_count = 0
 
-    userSerial = UserSerializer(request.user, context={'request': request})
     context = dict(
         login_url = NetidBackend.login_url("").url,
         debug = settings.DEBUG,
@@ -57,6 +56,7 @@ def spa_index(request):
         docSerial = DocumentSerializer(documents, many=True)
         faculties = Category.objects.get(level=0).children.all()
         facSerial = CategorySerializer(faculties, many=True, context=dict(request=request))
+        userSerial = UserSerializer(request.user, context={'request': request})
         context.update(dict(
             stream = feedSerial.data,
             recent_docs = docSerial.data,

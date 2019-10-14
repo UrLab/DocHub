@@ -9,7 +9,7 @@ const Syslogin = withRouter(({history}) => {
   const [ username, setUsername ] = useState("");
   const [ password, setPassword ] = useState("");
   const [ errors, setErrors ] = useState([]);
-  const [ isSubmitted, setIsSubmitted ] = useState(false);
+  const [ isSuccess, setIsSuccess ] = useState(false);
 
   const onUsernameChange = e => setUsername(e.target.value);
   const onPasswordChange = e => setPassword(e.target.value);
@@ -19,11 +19,11 @@ const Syslogin = withRouter(({history}) => {
     axios.post(Urls['syslogin'](), {
       username,
       password
-    }).then(res => setIsSubmitted(true))
+    }).then(res => setIsSuccess(true))
     .catch(err => console.log(err))
   }
 
-  if (isSubmitted) {
+  if (isSuccess) {
     return <Redirect to="/" />
   }
 

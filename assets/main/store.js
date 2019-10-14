@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createContainer } from "unstated-next";
+import { withRouter } from 'react-router-dom';
+import axios from 'axios';
 
 const useStore = () => {
   const [store, setter] = useState(window.store);
@@ -17,3 +19,19 @@ const useStore = () => {
 };
 
 export const StoreContainer = createContainer(useStore);
+
+export const useForceStoreUpdate = url => {
+  const [signal, setSignal] = useState(true);
+  const fireSignal = () => { setSignal(!signal) }
+  
+  const { setStore } = StoreContainer.useContainer()
+
+  const forceStoreUpdate = useCallback(() => {
+    axios.get(url)
+    .then(res => {
+      setStore(res.data)
+      fireSignal();
+    })
+  })
+  return forceStoreUpdate;
+}

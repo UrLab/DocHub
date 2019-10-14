@@ -33,7 +33,7 @@ const Index = () => {
         </a><br/>
         { debug &&
           <small>
-            Developpers could also <Link to="/syslogin">syslogin</Link>
+            Developpers could also <Link to={ Urls['syslogin']() }>syslogin</Link>
           </small>
         }
       </p>

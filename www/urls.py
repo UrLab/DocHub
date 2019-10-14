@@ -12,6 +12,7 @@ from django.conf.urls import url
 
 import users.views
 import www.views
+from www.helpers import mf_redirect_to
 
 from documents.sitemap import DocumentSitemap
 from catalog.sitemap import CourseSitemap
@@ -21,16 +22,6 @@ sitemaps = {
     'course': CourseSitemap,
     'document': DocumentSitemap,
 }
-
-# wrapper to automatically redirect requests with not-matching methods
-# 'mf' stands for 'method filtered'
-def mf_redirect_to(redirect_view):
-    def mf_path(str_path, view, methods, **kwargs):
-        def view_wrapper(req, *view_args, **view_kwargs):
-            real_view = redirect_view if req.method not in methods else view
-            return real_view(req, *view_args, **view_kwargs)
-        return path(str_path, view_wrapper, **kwargs)
-    return mf_path
 
 mf_path = mf_redirect_to(www.views.index)
 
