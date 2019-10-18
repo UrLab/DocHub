@@ -4,15 +4,11 @@ var webpack = require('webpack');
 
 module.exports = {
     context: __dirname,
-
     devtool: "source-map",
 
     entry: {
         tree: [
             './assets/tree/index.js',
-        ],
-        courses: [
-            './assets/courses/index.js',
         ],
         viewer: [
             './assets/viewer/index.js',

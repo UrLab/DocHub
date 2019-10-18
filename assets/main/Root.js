@@ -1,10 +1,11 @@
 import React from "react";
-import { StoreContainer } from "./store";
+import { useContainer } from "./store";
 import Home from "./Home.js";
-import Index from "./IndexPage.js"
+import Index from "./IndexPage.js";
+import { with_fetch } from './Fetch.js';
 
 const Root = () => {
-  const { store: {user} } = StoreContainer.useContainer();
+  const { store: {user} } = useContainer();
   return (
     <div>
       { user.is_authenticated ?
@@ -16,4 +17,4 @@ const Root = () => {
   )
 }
 
-export default Root;
+export default with_fetch(Root, {endpoint: "/spa/"});

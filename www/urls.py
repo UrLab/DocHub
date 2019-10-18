@@ -17,6 +17,7 @@ from www.helpers import mf_redirect_to
 from documents.sitemap import DocumentSitemap
 from catalog.sitemap import CourseSitemap
 
+from catalog.views import CategoryDetailView
 
 sitemaps = {
     'course': CourseSitemap,
@@ -32,6 +33,11 @@ urlpatterns = [
 
     path("admin/", admin.site.urls),
     path("api/", include("www.rest_urls")),
+
+    # only here for 'django_js_reverse'
+    path("categories/<int:pk>/", www.views.index, name="category_show"),
+    path("courses/<slug:slug>/", www.views.index, name="course_show"),
+
 
     path("catalog/", include("catalog.urls")),
     path("documents/", include("documents.urls")),

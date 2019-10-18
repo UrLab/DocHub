@@ -6,7 +6,7 @@ from functools import partial
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
@@ -20,6 +20,7 @@ from actstream import actions
 from catalog.models import Category, Course
 from catalog.suggestions import suggest
 from catalog.forms import SearchForm
+from users.serializers import UserSerializer
 import search.logic
 
 
@@ -57,8 +58,9 @@ def set_follow_course(request, slug, action):
     course = get_object_or_404(Course, slug=slug)
     action(request.user, course)
     request.user.update_inferred_faculty()
-    nextpage = request.GET.get('next', reverse('course_show', args=[slug]))
-    return HttpResponseRedirect(nextpage)
+
+    userSerial = UserSerializer(request.user, context={'request': request})
+    return JsonResponse(userSerial.data)
 
 
 @login_required

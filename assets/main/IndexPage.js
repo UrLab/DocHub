@@ -1,5 +1,5 @@
 import React from 'react';
-import { StoreContainer } from './store';
+import { useContainer } from './store';
 import { Link } from 'react-router-dom';
 
 const intComma = x => {
@@ -18,7 +18,7 @@ const Index = () => {
       debug,
       login_url
     }
-  } = StoreContainer.useContainer();
+  } = useContainer();
   return (
     <div className="medium-6 small-12 columns small-centered">
       <h1>DocHub</h1>

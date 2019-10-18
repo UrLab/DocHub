@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { withRouter, Link, Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
-
-const Syslogin = withRouter(({history}) => {
+const Syslogin = () => {
   const [ username, setUsername ] = useState("");
   const [ password, setPassword ] = useState("");
   const [ errors, setErrors ] = useState([]);
@@ -77,6 +74,6 @@ const Syslogin = withRouter(({history}) => {
       </div>
     </div>
   )
-})
+}
 
 export default Syslogin;

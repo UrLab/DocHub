@@ -46,10 +46,20 @@ class ShortCategorySerializer(serializers.HyperlinkedModelSerializer):
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     children = ShortCategorySerializer(many=True)
     courses = ShortCourseSerializer(many=True, source="course_set")
+    ancestors = serializers.SerializerMethodField()
+
+    def get_ancestors(self, category, **kwargs):
+        ancestors = category.get_ancestors()
+        res = ShortCategorySerializer(
+            ancestors,
+            many=True,
+            context=dict(request=self.context['request'])
+        )
+        return res.data
 
     class Meta:
         model = Category
-        fields = ('id', 'url', 'name', 'parent', 'children', 'courses')
+        fields = ('id', 'url', 'name', 'parent', 'children', 'courses', 'ancestors')
 
         extra_kwargs = {
             'course_set': {'lookup_field': 'slug'},

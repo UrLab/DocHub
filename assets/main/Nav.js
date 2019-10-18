@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { StoreContainer } from "./store";
+import { useContainer } from "./store";
 import Search from "./search";
+import { with_fetch } from "./Fetch";
 
 const Nav = () => {
-  const {store: {user}} = StoreContainer.useContainer();
+  useEffect(() => {
+    window.$(document).foundation();
+  })
+
+  const { store : { user } } = useContainer();
   return (
     <div className="sticky contain-to-grid">
       <nav className="top-bar" data-topbar="">
@@ -75,4 +80,4 @@ const Nav = () => {
   )
 }
 
-export default Nav;
+export default with_fetch(Nav, {endpoint: "/api/me/", store_as: "user", ignore_failure: true});

@@ -10,7 +10,8 @@ import telepathy.rest
 import search.rest
 import www.rest
 import notifications.rest
-
+import www.views
+import users.views
 
 class DochubAPI(APIRootView):
     """

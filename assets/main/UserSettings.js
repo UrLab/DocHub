@@ -1,16 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { Redirect, withRouter } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
 import FeedEntry from './FeedEntry';
-import { StoreContainer, useForceStoreUpdate } from './store';
+import { useContainer, useForceStoreUpdate } from './store';
 import axios from 'axios';
+import { with_fetch } from "./Fetch.js";
 
-const UserSettingsComp = (props) => {
+const UserSettings = () => {
   // {% block title %}Profil{% endblock %}
-  const { store : { user, stream, token } } = StoreContainer.useContainer();
+  const location = useLocation();
+  const { store : { user, stream, token } } = useContainer();
   const [ messages, setMessages ] = useState([]);
   const [ errors, setErrors ] = useState([]);
 
-  const forceStoreUpdate = useForceStoreUpdate("/spa"+props.location.pathname)
+  const forceStoreUpdate = useForceStoreUpdate("/spa"+location.pathname)
 
   const fileInputRef = useRef(null);
   const onFormSubmit = e => {
@@ -146,5 +148,4 @@ const UserSettingsComp = (props) => {
   );
 }
 
-const UserSettings = withRouter(UserSettingsComp);
-export default UserSettings;
+export default with_fetch(UserSettings, { prefix : "/spa" });

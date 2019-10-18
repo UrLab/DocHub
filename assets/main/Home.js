@@ -1,7 +1,8 @@
 import React from "react";
-import { StoreContainer } from "./store";
+import { useContainer } from "./store";
 import Welcome from "./Welcome.js";
 import FeedEntry from "./FeedEntry";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const { store:
@@ -11,7 +12,7 @@ const Home = () => {
       recent_docs,
       stream
     }
-  } = StoreContainer.useContainer();
+  } = useContainer();
   return (
     <div>
       { user.welcome &&
@@ -25,12 +26,12 @@ const Home = () => {
             <ul className="no-list">
               { recent_docs.map(doc => (
                 <li key={ doc.id }>
-                  <a href={ Urls["document_show"](doc.id) }>
+                  <Link to={ Urls["document_show"](doc.id) }>
                     <span className="course-label secondary radius label recent-blob fixed-label">
                       { doc.course.slug }
                     </span>
                     { doc.name.substring(0, 40) }
-                  </a>
+                  </Link>
                   </li>
               ))}
             </ul>
@@ -40,12 +41,12 @@ const Home = () => {
             <ul className="no-list">
               { user.followed_courses.map(course => (
                 <li key={ course.id } className="nav-link">
-                  <a href={ Urls["course_show"](course.slug) }>
+                  <Link to={ Urls.course_show(course.slug) }>
                     <span className="course-label success radius label fixed-label">
                       { course.slug }
                     </span>
                     { course.name.substring(0, 40) }
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -76,10 +77,10 @@ const Home = () => {
             <ul className="small-block-grid-1">
               { faculties.map(fac => (
                 <li key={ fac.id } className="catalog-option">
-                  <a href={ Urls["category_show"](fac.id) }>
+                  <Link to={ Urls["category_show"](fac.id) }>
                     <i className="fi-folder round-icon small"></i>
                     {" "}{ fac.name }
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -98,7 +99,7 @@ const Home = () => {
                 <p>Il n'y a encore rien dans ton flux d'actualités, attends un peu, ça arrivera&nbsp;!</p>
               :
                 <span>
-                  <p>Il n'y a encore rien dans ton flux d'actualités, il faudrait peut-être <a href={ Urls["show_courses"]() }>s’abonner à un cours</a> ?</p>
+                  <p>Il n'y a encore rien dans ton flux d'actualités, il faudrait peut-être <Link to={ Urls["show_courses"]() }>s’abonner à un cours</Link> ?</p>
                   <p>En vous abonnant à un cours, il apparait dans le menu de gauche sur toutes les pages du site, et vous recevez une notification à chaque nouveau document ou sujet de discussion ajouté dans ce cours.</p>
                 </span>
               }

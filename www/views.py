@@ -22,7 +22,10 @@ from catalog.serializers import CategorySerializer
 from documents.serializers import DocumentSerializer
 from www.serializers import FeedSerializer
 
-def index(request):
+from rest_framework import viewsets
+from rest_framework.response import Response
+
+def index(request, *args, **kwargs):
     return render(request, "skel.html", {})
 
 def spa_index(request):
