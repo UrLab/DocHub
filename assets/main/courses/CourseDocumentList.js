@@ -84,7 +84,6 @@ const CourseDocumentList = ({document_set}) => {
     });
     return admissible;
   }).sort((a, b) => (a.date >= b.date));
-
   const bar_tags = tags_in_documents().map(tag => {
     var occurences = documents_filtered()
       .map(x => has_tag(x, tag))
@@ -114,9 +113,9 @@ const CourseDocumentList = ({document_set}) => {
       <br/>
       { documents_filtered.length > 0 ?
         <div>
-          documents_filtered.map(doc => (
+          { documents_filtered.map(doc => (
             <CourseDocument key={ doc.id } { ...doc } />
-          ))
+          ))}
         </div>
       :
         <span>

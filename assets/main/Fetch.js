@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useContainer } from "./store";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const zipf = (a1, a2, f) => {
@@ -9,8 +9,40 @@ const zipf = (a1, a2, f) => {
   }, {})
 }
 
+const fetch_all = ({props, ref, setStore, get_url, is_reload}) => {
+  const filtered_props = props.filter(({refetch_on_params_change}) => (
+    !is_reload || !!refetch_on_params_change
+  ));
+
+  axios.all(
+    filtered_props.map(({ endpoint, prefix }) => {
+      const url = get_url(endpoint, prefix);
+      return axios.get(url)
+    })
+  ).then(axios.spread((...all_res) => {
+    const newStore = zipf(all_res, filtered_props, ( { data }, { store_as } ) => {
+      return ( !store_as ? data : { [store_as] : data } )
+    })
+    ref.current = false;
+    setStore(newStore)
+  }))
+  .catch(err => {
+    console.log(err)
+    for (var {ignore_failure} of filtered_props) {
+      if (ignore_failure) {
+        ref.current = false;
+        setStore({})
+        break;
+      }
+    }
+  })
+}
+
 const Fetch = ({children, props}) => {
-  const { store, setStore } = useContainer();
+  if (!Array.isArray(props)) {
+      props = [ props ]
+  }
+  const { setStore } = useContainer();
   const location = useLocation();
   const ref = useRef(true);
 
@@ -26,22 +58,21 @@ const Fetch = ({children, props}) => {
     )
   }
   useEffect(() => {
-    if (!Array.isArray(props)) {
-        props = [ props ]
-    }
-    axios.all(
-      props.map(({ endpoint, prefix }) => {
-        const url = get_url(endpoint, prefix);
-        return axios.get(url)
-      })
-    ).then(axios.spread((...all_res) => {
-      const newStore = zipf(all_res, props, ( { data }, { store_as } ) => {
-        return ( !store_as ? data : { [store_as] : data } )
-      })
-      ref.current = false;
-      setStore(newStore)
-    }))
+    fetch_all({props, ref, setStore, get_url, is_reload: false})
   }, [])
+
+
+  // FETCH ON PARAM CHANGE
+  const params = useParams();
+  const oldLocRef = useRef(null);
+
+  useEffect(() => {
+    if (!!oldLocRef.current) {
+      fetch_all({props, ref, setStore, get_url, is_reload: true})
+    }
+    oldLocRef.current = location;
+  }, [params])
+
 
   if (ref.current) {
     return <div>Loading...</div>

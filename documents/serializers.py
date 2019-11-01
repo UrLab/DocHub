@@ -17,8 +17,16 @@ from documents import logic
 from catalog.models import Course
 from tags.models import Tag
 
-
 class DocumentSerializer(serializers.HyperlinkedModelSerializer):
+    course = serializers.SerializerMethodField()
+
+    def get_course(self, document):
+        from catalog.serializers import ShortCourseSerializer
+        return ShortCourseSerializer(
+            document.course,
+            context={'request': self.context['request']}
+        ).data
+
     tags = TagSerializer(read_only=True, many=True)
 
     user = SmallUserSerializer(read_only=True)
@@ -53,7 +61,7 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
 
         extra_kwargs = {
             'user': {'lookup_field': 'netid'},
-            'course': {'lookup_field': 'slug'},
+            'course': {'lookup_field': 'slug', },
         }
 
     def get_user_vote(self, document):
@@ -88,9 +96,21 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ShortDocumentSerializer(serializers.HyperlinkedModelSerializer):
+    course = serializers.SerializerMethodField()
+
+    def get_course(self, document):
+        from catalog.serializers import ShortCourseSerializer
+        return ShortCourseSerializer(
+            document.course,
+            context={'request': self.context['request']}
+        ).data
+
     class Meta:
         model = Document
-        fields = ('id', 'url', 'course')
+        fields = ('id', 'url', 'course', 'name')
+        extra_kwargs = {
+            'course': {'lookup_field': 'slug'},
+        }
 
 
 class EditDocumentSerializer(serializers.HyperlinkedModelSerializer):

@@ -5,9 +5,11 @@ from django.urls import include, path
 
 import www.views
 import users.views
+import documents.views
 
 urlpatterns = [
     path("", www.views.spa_index),
     path("syslogin", www.views.spa_index),
-    path("users/settings/", users.views.spa_user_settings)
+    path("users/settings/", users.views.spa_user_settings),
+    path("documents/upload/<slug:slug>", documents.views.spa_upload_file)
 ]

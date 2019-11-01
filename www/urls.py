@@ -17,8 +17,6 @@ from www.helpers import mf_redirect_to
 from documents.sitemap import DocumentSitemap
 from catalog.sitemap import CourseSitemap
 
-from catalog.views import CategoryDetailView
-
 sitemaps = {
     'course': CourseSitemap,
     'document': DocumentSitemap,

@@ -8,8 +8,8 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 
 const VoteButton = ({
-    isActive, doc_id, vote_type,
-    vote_callback, num, description }) => {
+    isActive, doc_id, vote_type, vote_callback, num,
+    description, icon_class }) => {
 
   const clicked = e => {
     e.preventDefault();
@@ -36,7 +36,7 @@ const VoteButton = ({
       title={ description }
       className={ "label radius " + (isActive ? 'info' : 'secondary') }
       onClick={ clicked }>
-      <i className={`${this.props.icon_class} ${this.props.isActive ? 'active' : ''}`} />
+      <i className={`${icon_class} ${isActive ? 'active' : ''}`} />
       &nbsp;
       { pretty_vote_num }
     </a>
@@ -53,7 +53,7 @@ export const UpvoteButton = props => (
 )
 
 export const DownvoteButton = props => (
-  <VoteButton {...this.props} // isActive, vote_callback, num
+  <VoteButton {...props} // isActive, vote_callback, num
     vote_type={"down"}
     label_class={"round alert label votelabel"}
     icon_class={"fi-dislike round-icon medium downvote"}

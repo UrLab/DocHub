@@ -13,6 +13,7 @@ import Syslogin from './Syslogin.js';
 import UserSettings from './UserSettings.js';
 import Categories from './Categories.js';
 import Courses from './Courses.js';
+import UploadFile from './UploadFile.js';
 import Footer from './Footer.js';
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
             <Route path={ Urls['settings']() } component={ UserSettings } />
             <Route path="/categories/:id" component={ Categories } />
             <Route path="/courses/:slug" component={ Courses } />
+            <Route path="/documents/upload/:slug" component={ UploadFile } />
           </Switch>
         </div>
         <Footer/>

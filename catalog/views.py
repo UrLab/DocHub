@@ -23,37 +23,6 @@ from catalog.forms import SearchForm
 from users.serializers import UserSerializer
 import search.logic
 
-
-class CategoryDetailView(LoginRequiredMixin, DetailView):
-    model = Category
-    template_name = "catalog/category.html"
-    context_object_name = "category"
-
-
-class CourseDetailView(DetailView):
-    model = Course
-    context_object_name = "course"
-
-    def get_template_names(self, **kwargs):
-        if self.request.user.is_authenticated:
-            return "catalog/course.html"
-        else:
-            return "catalog/noauth/course.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(CourseDetailView, self).get_context_data(**kwargs)
-        course = context['course']
-
-        context['documents'] = course.document_set\
-            .exclude(state="ERROR", hidden=True)\
-            .select_related('user')\
-            .prefetch_related('tags')
-        context['threads'] = course.thread_set.annotate(Count('message')).order_by('-id')
-        context['followers_count'] = course.followers_count
-
-        return context
-
-
 def set_follow_course(request, slug, action):
     course = get_object_or_404(Course, slug=slug)
     action(request.user, course)

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useContainer } from "./store";
-import Search from "./search";
+import Search from "./Search.js";
 import { with_fetch } from "./Fetch";
 
 const Nav = () => {

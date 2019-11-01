@@ -19,7 +19,7 @@ from catalog.forms import SearchForm
 from catalog.models import Category
 from users.serializers import UserSerializer
 from catalog.serializers import CategorySerializer
-from documents.serializers import DocumentSerializer
+from documents.serializers import ShortDocumentSerializer
 from www.serializers import FeedSerializer
 
 from rest_framework import viewsets
@@ -56,7 +56,7 @@ def spa_index(request):
         following = request.user.following_courses()
         ndocs = max(5, len(following))
         documents = Document.objects.filter(course__in=following).order_by("-created")[:ndocs]
-        docSerial = DocumentSerializer(documents, many=True)
+        docSerial = ShortDocumentSerializer(documents, many=True, context={'request': request})
         faculties = Category.objects.get(level=0).children.all()
         facSerial = CategorySerializer(faculties, many=True, context=dict(request=request))
         userSerial = UserSerializer(request.user, context={'request': request})

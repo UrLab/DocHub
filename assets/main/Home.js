@@ -30,9 +30,9 @@ const Home = () => {
                     <span className="course-label secondary radius label recent-blob fixed-label">
                       { doc.course.slug }
                     </span>
-                    { doc.name.substring(0, 40) }
+                    {" "}{ doc.name.substring(0, 40) }
                   </Link>
-                  </li>
+                </li>
               ))}
             </ul>
           </div>
@@ -40,12 +40,12 @@ const Home = () => {
             <h3>Mes cours</h3>
             <ul className="no-list">
               { user.followed_courses.map(course => (
-                <li key={ course.id } className="nav-link">
+                <li key={ course.slug } className="nav-link">
                   <Link to={ Urls.course_show(course.slug) }>
                     <span className="course-label success radius label fixed-label">
                       { course.slug }
                     </span>
-                    { course.name.substring(0, 40) }
+                    {" "}{ course.name.substring(0, 40) }
                   </Link>
                 </li>
               ))}
@@ -105,7 +105,7 @@ const Home = () => {
               }
               <span id="joy-flux"></span>
               { Array.from("xxxx").map((_, i) => (
-                <div key={i} className="row feed-placeholder">
+                <div key={ i } className="row feed-placeholder">
                   <div className="large-12 columns">
                     <p>
                       <strong>

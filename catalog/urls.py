@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.urls import path
-from catalog.views import CategoryDetailView, CourseDetailView, search_course
+from catalog.views import search_course
 import catalog.views
 
 urlpatterns = [

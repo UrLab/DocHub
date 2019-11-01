@@ -6,7 +6,7 @@ import uuid
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.conf import settings
@@ -19,7 +19,27 @@ from catalog.models import Course
 from documents.forms import UploadFileForm, FileForm, MultipleUploadFileForm, ReUploadForm
 from tags.models import Tag
 from documents import logic
+from tags.serializers import TagSerializer
+from catalog.serializers import ShortCourseSerializer
+from www.helpers import get_form_errors
 
+READ_ONLY_ERROR_RESPONSE = JsonResponse(dict(
+    errors = dict(
+        field = 'form',
+        error = 'Upload is disabled for a few hours'
+)), status = 401)
+
+@login_required
+def spa_upload_file(request, slug):
+    course = get_object_or_404(Course, slug=slug)
+    courseSerial = ShortCourseSerializer(course, context={'request': request})
+    tags = Tag.objects.all()
+    tagSerial = TagSerializer(tags, many=True)
+    return JsonResponse(dict(
+        course = courseSerial.data,
+        tags = tagSerial.data,
+        READ_ONLY = settings.READ_ONLY
+    ))
 
 @login_required
 def upload_file(request, slug):
@@ -27,10 +47,9 @@ def upload_file(request, slug):
 
     if request.method == 'POST':
         if settings.READ_ONLY:
-            return HttpResponse('Upload is disabled for a few hours', status=401)
+            return READ_ONLY_ERROR_RESPONSE
 
         form = UploadFileForm(request.POST, request.FILES)
-
         if form.is_valid():
             file = request.FILES['file']
 
@@ -54,30 +73,19 @@ def upload_file(request, slug):
 
             document.add_to_queue()
 
-            return HttpResponseRedirect(reverse('course_show', args=[course.slug]))
-
-    else:
-        form = UploadFileForm()
-
-    multiform = MultipleUploadFileForm()
-
-    return render(request, 'documents/document_upload.html', {
-        'form': form,
-        'multiform': multiform,
-        'course': course,
-    })
+            return JsonResponse({})
+        else:
+            errors = get_form_errors(form)
+            return JsonResponse(dict(errors=errors), status=500)
 
 
 @login_required
 def upload_multiple_files(request, slug):
     course = get_object_or_404(Course, slug=slug)
-
     if request.method == 'POST':
         if settings.READ_ONLY:
-            return HttpResponse('Upload is disabled for a few hours', status=401)
-
+            return READ_ONLY_ERROR_RESPONSE
         form = MultipleUploadFileForm(request.POST, request.FILES)
-
         if form.is_valid():
             for attachment in form.cleaned_data['files']:
                 name, extension = os.path.splitext(attachment.name)
@@ -93,8 +101,10 @@ def upload_multiple_files(request, slug):
                 )
                 document.add_to_queue()
 
-            return HttpResponseRedirect(reverse('course_show', args=[course.slug]))
-    return HttpResponseRedirect(reverse('document_put', args=(course.slug,)))
+            return JsonResponse({})
+        else:
+            errors = get_form_errors(form)
+            return JsonResponse(dict(errors=errors), status=500)
 
 
 @login_required

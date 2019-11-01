@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useContainer } from './store';
 import { with_fetch } from "./Fetch.js";
-import { Link } from 'react-router-dom';
+import { Link, useParams, useLocation, Redirect } from 'react-router-dom';
 import { isFollowed } from './utils.js';
 
 const Categories = () => {
   const { store : { category, user } } = useContainer();
+
   // {% block title %}{{ category.name }}{% endblock %}
 
   return (
@@ -21,7 +22,7 @@ const Categories = () => {
           <ul className="breadcrumbs">
             { category.ancestors.map(parent => (
               <li key={parent.id}>
-                <Link to={ Urls.category_show(parent.id) }>
+                <Link to={ Urls.category_show(parent.id) } >
                   { parent.name }
                 </Link>
               </li>
@@ -43,8 +44,8 @@ const Categories = () => {
                     <h6>
                       { followed ?
                         <a href={ Urls.leave_course(course.slug)+"?next="+Urls.category_show(category.id) }
-                           className="course-label radius success label toggle-follow"
-                           title="Se désabonner du cours">
+                          className="course-label radius success label toggle-follow"
+                          title="Se désabonner du cours">
                           { course.slug }
                         </a>
                       :
@@ -69,7 +70,6 @@ const Categories = () => {
             </ul>
           </div>
         }
-
         { category.children.length>0 &&
           <div className="large-6 medium-12 columns">
             <ul className="small-block-grid-1">
@@ -86,26 +86,24 @@ const Categories = () => {
             </ul>
           </div>
         }
-
-          <div className="medium-6 columns">
-              <div className="panel callout radius">
-                <h5>Tu ne trouves pas ta section ou ton cours ?</h5>
-                <p>
-                    Il est peut-être juste manquant de notre classification.
-                    Mais si il était sur Respublicae, nous on l'a aussi !<br/>
-                    Fais une recherche sur le nom ou le mnémonique de ton cours dans la barre de recherche
-                    et tu le trouveras surement.<br/>
-                    <small>(Si jamais tu ne le trouves vraiment pas, envoie nous un message, on réparera ça tout de suite.)</small>
-                </p>
-              </div>
+        <div className="medium-6 columns">
+          <div className="panel callout radius">
+            <h5>Tu ne trouves pas ta section ou ton cours ?</h5>
+            <p>
+              Il est peut-être juste manquant de notre classification.
+              Mais si il était sur Respublicae, nous on l'a aussi !<br/>
+              Fais une recherche sur le nom ou le mnémonique de ton cours dans la barre de recherche
+              et tu le trouveras surement.<br/>
+              <small>(Si jamais tu ne le trouves vraiment pas, envoie nous un message, on réparera ça tout de suite.)</small>
+            </p>
           </div>
-
+        </div>
       </div>
     </div>
   )
 }
 
 export default with_fetch(Categories, [
-  { prefix : "/api", store_as : "category" },
+  { prefix : "/api", store_as : "category", refetch_on_params_change : true },
   { endpoint : "/api/me/", store_as : "user" }
 ]);

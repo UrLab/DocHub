@@ -4,32 +4,25 @@ import { with_fetch } from "./Fetch.js";
 import CourseDocumentList from './courses/CourseDocumentList.js';
 import axios from 'axios';
 import { isFollowed } from './utils.js';
+import { Link } from 'react-router-dom';
 
 const Courses = () => {
   // {% block title %}{{ course.slug|upper }}{% endblock %}
   const { store: { course, user }, setStore } = useContainer();
   const followed = isFollowed(user.followed_courses, course);
 
-  const hit_api = url => useCallback(e => {
-    console.log("click")
-    console.log(url)
+  const hit_api = url => e => {
     e.preventDefault();
-    axios.get(url, {
-      headers: {
-        "Cache-Control": "no-cache" 
-      }
-    })
+    axios.get(url)
     .then(({data}) => {
-      setStore({user: data})
-      console.log("done")
+      setStore({ user : data })
     })
     .catch(err => {
       console.log(err)
     })
 
-    console.log("fin")
-  }, [user.followed_courses])
-  console.log("render")
+  }
+
   return (
     <div>
       <div className="row">
@@ -47,9 +40,9 @@ const Courses = () => {
             <a href={ course.gehol_url } target="_blank" className="button radius tiny secondary right">
               <i className="fi-calendar"/> Horaire sur GeHol
             </a>
-            <a href={ Urls.document_put(course.slug) } className="button radius tiny success">
+            <Link to={ Urls.document_put(course.slug) } className="button radius tiny success">
               <i className="fi-plus"/> Uploader un fichier
-            </a>
+            </Link>
             {" "}{ followed ?
               <a onClick={ hit_api(Urls.leave_course(course.slug)) } className="button radius info tiny">
                 <i className="fi-x"/> Se désabonner

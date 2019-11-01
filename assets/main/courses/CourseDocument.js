@@ -15,7 +15,7 @@ const CourseDocument = ({
   const [ {
     upvote_active, downvote_active,
     upvotes, downvotes
-  }, set_state ] = useState({
+  }, setState ] = useState({
     upvote_active : user_vote==1 || false,
     downvote_active : user_vote==-1 || false,
     upvotes : votes.upvotes || 0,
@@ -101,7 +101,7 @@ const CourseDocument = ({
           <div className="course-content-last-line">
             <i className="fi-page-filled"/>
             { !is_ready ?
-              <span>En cours de traitement</span>
+              <span> En cours de traitement</span>
             : pages == 1 ?
               <span>1 page</span>
             : is_unconvertible ?
