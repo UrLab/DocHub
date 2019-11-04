@@ -39,10 +39,10 @@ const Index = () => {
       </p>
       <p>
         <i className="fi-page-copy"></i>
-        {" "}DocHub, c'est actuellement plus de { intComma(documents) } documents contenant
+        {' '}DocHub, c'est actuellement plus de { intComma(documents) } documents contenant
         plus de { intComma(pages) } pages ajoutées par plus de { intComma(users) } utilisateurs.<br/>
         <i className="fi-comment"></i>
-        {" "}Sur DocHub, vous pouvez poser des questions et les autres étudiants peuvent y répondre.
+        {' '}Sur DocHub, vous pouvez poser des questions et les autres étudiants peuvent y répondre.
         { threads>=100 &&
           <span>
             Il y a déjà eu plus de { threads } questions posées.

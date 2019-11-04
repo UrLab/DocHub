@@ -103,17 +103,17 @@ const CourseDocument = ({
             { !is_ready ?
               <span> En cours de traitement</span>
             : pages == 1 ?
-              <span>1 page</span>
+              <span> 1 page</span>
             : is_unconvertible ?
               <span/>
             :
-              <span>{pages}{' '}pages</span>
+              <span> { pages }{' '}pages</span>
             }
             {' '}<i className="fi-clock"/> Uploadé le { formatted_date }&nbsp;
             { tags.length > 0 &&
               <span>
                 <i className="fi-pricetag-multiple"/>
-                { tags.map(tag => (
+                {' '}{ tags.map(tag => (
                   <Tag key={tag.id} {...tag}/>
                 ))}
               </span>

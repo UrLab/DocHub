@@ -85,7 +85,7 @@ const CourseDocumentList = ({document_set}) => {
     return admissible;
   }).sort((a, b) => (a.date >= b.date));
   const bar_tags = tags_in_documents().map(tag => {
-    var occurences = documents_filtered()
+    var occurences = documents_filtered
       .map(x => has_tag(x, tag))
       .reduce((x, y) => (x+y), 0);
     tag.active = (tag_filter.indexOf(tag.id) >= 0);
@@ -101,7 +101,7 @@ const CourseDocumentList = ({document_set}) => {
           <h4>Filtrer <small>par tag</small></h4>
           <span className="tag-bar">
             { bar_tags.map(tag => (
-              <Tag key={tag.id} onClick={tag_clicked} {...tag}/>
+              <Tag key={tag.id} onClick={tag_clicked(tag.id)} {...tag}/>
             ))}
           </span>
         </div>

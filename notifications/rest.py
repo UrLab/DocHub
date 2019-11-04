@@ -12,7 +12,7 @@ class NotificationsViewSet(viewsets.ReadOnlyModelViewSet):
         qs = Notification.objects.filter(user=self.request.user)
         if not all_notifs:
             qs = qs.filter(read=False)
-        qs = qs.select_related('action')
-        qs = qs.prefetch_related('action__target', 'action__actor', 'action__action_object')
-
-        return qs
+        return qs.select_related('action').prefetch_related(
+            'action__target', 'action__actor',
+            'action__action_object'
+        )

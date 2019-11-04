@@ -19,20 +19,10 @@ from actstream.models import actor_stream
 from www.serializers import FeedSerializer
 from users.serializers import UserSerializer
 from www.helpers import get_messages
+from notifications.models import Notification
+from notifications.serializers import NotificationSerializer
 
 from users.forms import SettingsForm
-
-@login_required
-def spa_user_settings(request):
-    token, _created = Token.objects.get_or_create(user=request.user)
-    stream = actor_stream(request.user)[:5]
-    feedSerial = FeedSerializer(stream, many=True)
-    userSerial = UserSerializer(request.user, context={'request': request})
-    return JsonResponse(dict(
-        user = userSerial.data,
-        stream = feedSerial.data,
-        token = token.serializable_value("key"),
-    ))
 
 @login_required
 def user_settings(request):

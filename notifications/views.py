@@ -5,23 +5,11 @@ from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 
 
 from notifications.models import Notification
-
-
-class NotificationsView(LoginRequiredMixin, ListView):
-    model = Notification
-
-    def get_queryset(self):
-        qs = Notification.objects.filter(user=self.request.user, read=False)
-        qs = qs.select_related('action')
-        qs = qs.prefetch_related('action__target', 'action__actor', 'action__action_object')
-
-        return qs
-
 
 @login_required
 def markAsRead(request, pk, redirect_to_object=False):
@@ -40,7 +28,7 @@ def markAsRead(request, pk, redirect_to_object=False):
         if return_url is None:
             return_url = reverse('notifications')
 
-    return HttpResponseRedirect(return_url)
+    return JsonResponse(dict(redirect=return_url))
 
 
 @login_required
@@ -52,4 +40,4 @@ def markAsReadAndRedirect(*args, **kwargs):
 @login_required
 def markAllAsRead(request):
     Notification.objects.filter(user=request.user, read=False).update(read=True)
-    return HttpResponseRedirect(reverse('notifications'))
+    return JsonResponse({})

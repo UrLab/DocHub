@@ -1,18 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { Redirect, useLocation } from 'react-router-dom';
 import FeedEntry from './FeedEntry';
-import { useContainer, useForceStoreUpdate } from './store';
+import { useContainer } from './store';
+import { useFetch } from './Fetch.js';
 import axios from 'axios';
 import { with_fetch } from "./Fetch.js";
 
 const UserSettings = () => {
   // {% block title %}Profil{% endblock %}
   const location = useLocation();
-  const { store : { user, stream, token } } = useContainer();
+  const { store : { user, notifications: _notifs } } = useContainer();
+  const notifications = _notifs.results;
   const [ messages, setMessages ] = useState([]);
   const [ errors, setErrors ] = useState([]);
-
-  const forceStoreUpdate = useForceStoreUpdate("/spa"+location.pathname)
 
   const fileInputRef = useRef(null);
   const onFormSubmit = e => {
@@ -37,11 +37,13 @@ const UserSettings = () => {
     }
   }
 
+  const fetch = useFetch();
+
   const refreshToken = e => {
     e.preventDefault();
     axios.get(Urls["reset_token"]())
     .then(res => {
-      forceStoreUpdate();
+      fetch({ endpoint: "/api/me/", store_as: "user" });
       setMessages(res.data.messages)
     })
     .catch(err => {
@@ -103,10 +105,10 @@ const UserSettings = () => {
         </div>
         <div className="medium-6 columns">
           <h2><i className="fi-list"></i> Activité</h2>
-          { stream.map(action => (
-              <FeedEntry key={action.id} action={ action } />
+          { notifications.map(({action, id}) => (
+              <FeedEntry key={id} action={ action } />
           ))}
-          { stream.length==0 &&
+          { notifications.length==0 &&
             <p>Vous n'avez encore effectué aucune action</p>
           }
         </div>
@@ -115,28 +117,28 @@ const UserSettings = () => {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
         <div className="medium-6 columns">
           <h3><i className="fi-key"></i>Token d'accès à l'API</h3>
-          <input type="text" id="foo" disabled value={ token } />
+          <input type="text" id="foo" disabled value={ user.token.key } />
 
           <a href="#" data-reveal-id="myModal"><small>
               <i className="fi-info"></i>
-              {" "}Exemples d'utilisation
+              {' '}Exemples d'utilisation
           </small></a> -
-          {" "}<a href={ Urls["reset_token"]() } onClick={ refreshToken }><small>
+          {' '}<a href={ Urls["reset_token"]() } onClick={ refreshToken }><small>
               <i className="fi-refresh"></i>
-              {" "}Supprimer cette clé et générer une nouvelle
+              {' '}Supprimer cette clé et générer une nouvelle
           </small></a>
 
           <div id="myModal" className="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
             <h2 id="modalTitle">Utilisation de l'API</h2>
             <p className="lead">Utilisation avec CURL</p>
             <pre>{`
-      curl -X GET https://dochub.be/api/ -H 'Authorization: Token `}{ token }{`'
+      curl -X GET https://dochub.be/api/ -H 'Authorization: Token `}{ user.token.key }{`'
             `}</pre>
 
             <p className="lead">Ou requests</p>
             <pre>{`
       import requests
-      headers = {'Authorization': 'Token `}{ token }{`'}
+      headers = {'Authorization': 'Token `}{ user.token.key }{`'}
       response = request.get("https://dochub.be/api/", headers=headers)
       print(response.json())
             `}</pre>
@@ -148,4 +150,8 @@ const UserSettings = () => {
   );
 }
 
-export default with_fetch(UserSettings, { prefix : "/spa" });
+export default with_fetch(UserSettings, [
+  { endpoint: "/api/me/", store_as: "user" },
+  { endpoint: "/api/notifications/?limit=5&offset=0", store_as: "notifications"},
+
+]);

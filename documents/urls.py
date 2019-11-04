@@ -18,15 +18,13 @@ urlpatterns = [
         documents.views.upload_multiple_files,
         name="document_put_multiple"),
 
-    path("<int:pk>/edit",
+    mf_path("<int:pk>/edit",
         documents.views.document_edit,
+        ["POST"],
         name="document_edit"),
 
     path("<int:pk>/reupload",
         documents.views.document_reupload,
         name="document_reupload"),
 
-    path("<int:pk>",
-        documents.views.document_show,
-        name="document_show"),
 ]

@@ -12,6 +12,7 @@ import www.rest
 import notifications.rest
 import www.views
 import users.views
+import tags.rest
 
 class DochubAPI(APIRootView):
     """
@@ -52,5 +53,6 @@ router.register(r'me', users.rest.Me, base_name="users-me")
 router.register(r'notifications', notifications.rest.NotificationsViewSet, base_name="notifications")
 router.register(r'me/actions', www.rest.SelfFeedViewSet, base_name="user-actions")
 router.register(r'tree', catalog.rest.Tree, base_name="catalog-tree")
+router.register(r'tags', tags.rest.TagsViewSet)
 
 urlpatterns = router.urls

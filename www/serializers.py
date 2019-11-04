@@ -18,7 +18,7 @@ class PolymorphicSerializer(serializers.ModelSerializer):
 class VeryShortDocumentSerializer(PolymorphicSerializer):
     class Meta:
         model = Document
-        fields = ('name', 'pages', 'obj_type', 'id')
+        fields = ('name', 'pages', 'obj_type', 'id', 'fullname', 'get_absolute_url')
 
 
 class VeryShortMessageSerializer(PolymorphicSerializer):
@@ -26,14 +26,14 @@ class VeryShortMessageSerializer(PolymorphicSerializer):
 
     class Meta:
         model = Message
-        fields = ('id', 'user', 'thread', 'text', 'obj_type')
+        fields = ('id', 'user', 'thread', 'text', 'obj_type', 'get_absolute_url')
 
 
 class VeryShortCourseSerializer(PolymorphicSerializer):
 
     class Meta:
         model = Course
-        fields = ('slug', 'name', 'obj_type')
+        fields = ('slug', 'name', 'obj_type', 'fullname', 'get_absolute_url')
 
 
 class VeryShortThreadSerializer(PolymorphicSerializer):
@@ -41,7 +41,7 @@ class VeryShortThreadSerializer(PolymorphicSerializer):
 
     class Meta:
         model = Thread
-        fields = ('id', 'name', 'user', 'obj_type')
+        fields = ('id', 'name', 'user', 'obj_type', 'get_absolute_url')
 
 
 class GenericRelatedField(serializers.Field):
@@ -66,4 +66,4 @@ class FeedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Action
-        fields = ('actor', 'verb', 'action_object', 'target')
+        fields = ('actor', 'verb', 'action_object', 'target', 'public')

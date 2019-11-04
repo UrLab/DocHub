@@ -43,7 +43,7 @@ const Courses = () => {
             <Link to={ Urls.document_put(course.slug) } className="button radius tiny success">
               <i className="fi-plus"/> Uploader un fichier
             </Link>
-            {" "}{ followed ?
+            {' '}{ followed ?
               <a onClick={ hit_api(Urls.leave_course(course.slug)) } className="button radius info tiny">
                 <i className="fi-x"/> Se désabonner
               </a>

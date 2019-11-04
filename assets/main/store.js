@@ -24,17 +24,3 @@ const useStore = () => {
 };
 
 export const { Provider, useContainer } = createContainer(useStore);
-
-export const useForceStoreUpdate = url => {
-  const [signal, setSignal] = useState(true);
-
-  const { setStore } = useContainer();
-
-  const forceStoreUpdate = useCallback(() => {
-    axios.get(url)
-    .then(res => {
-      setStore(res.data)
-    })
-  })
-  return forceStoreUpdate;
-}

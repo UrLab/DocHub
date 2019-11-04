@@ -24,11 +24,11 @@ const Tag = ({id, name, color, onClick, active}) => {
   return (
     <span>
       <span
-        onClick={this.clicked}
-        style={style}
-        className={cls}>
-      <i className={icon} />
-      {name}
+        onClick={ onClick }
+        style={ style }
+        className={ cls }>
+      <i className={ icon } />
+      {' '}{ name }
       </span>&nbsp;
     </span>
   );

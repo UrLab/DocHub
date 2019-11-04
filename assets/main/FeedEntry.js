@@ -1,46 +1,46 @@
 import React from 'react';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
+
+moment.locale('fr');
 
 const FeedEntry = ({action}) => {
   return (
-    <div class="row">
-      <div class="large-12 columns">
+    <div className="row">
+      <div className="large-12 columns">
         <p>
           <strong>
             { action.verb=="a posté" &&
-              <i class="fi-comment"/>
+              <i className="fi-comment"/>
             }
             { action.verb=="a édité" &&
-              <i class="fi-pencil"/>
+              <i className="fi-pencil"/>
             }
             { action.verb=="a répondu" &&
-              <i class="fi-comments"/>
+              <i className="fi-comments"/>
             }
             { action.verb=="a uploadé" &&
-              <i class="fi-page-add"/>
+              <i className="fi-page-add"/>
             }
-            <img src={action.actor.get_photo} class="feed-photo" />
-            {" "}{ action.actor.fullname }
-            {" "}{ action.verb }
+            <img src={action.actor.get_photo} className="feed-photo" />
+            {' '}{ action.actor.fullname }
+            {' '}{ action.verb }
           </strong>
-          { action.action_object && action.action_object.get_absolute_url ?
-            <a href={ action.action_object.get_absolute_url }>{ action.action_object.fullname }</a>
-          :
-            <span>{ action.action_object.fullname }</span>
+          { !!action.action_object &&
+            <span> <Link to={ action.action_object.get_absolute_url }>
+              { action.action_object.fullname }
+            </Link></span>
           }
-
-          { action.action_object && action.target &&
-            <span>dans</span>
-          }
-
-          { action.target && action.target.get_absolute_url ?
-            <a href={ action.target.get_absolute_url }>{ action.target.fullname }</a>
-          :
-            <a href={ action.target_url }>{ action.target.fullname }</a>
+          { !!action.target &&
+            <span> dans
+              {' '}<Link to={ action.target.get_absolute_url }>
+                { action.target.fullname }
+              </Link>
+            </span>
           }
           <br/>
-          <span class="feed-timesince">
-            Il y a { moment(action.timestamp).fromNow() }
+          <span className="feed-timesince">
+            { moment(action.timestamp).fromNow() }
           </span>
 
         </p>

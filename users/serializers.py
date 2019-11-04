@@ -66,6 +66,7 @@ class SmallUserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_representative',
             'avatar',
+            'fullname'
         )
 
         extra_kwargs = {

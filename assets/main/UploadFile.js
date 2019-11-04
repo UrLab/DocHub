@@ -8,13 +8,12 @@ import { Redirect, useParams } from 'react-router-dom';
 require("select2/dist/css/select2.min.css");
 
 const UploadFile = () => {
+  const { store : { course, tags } } = useContainer();
   const { slug } = useParams();
 
   const [ name, setName ] = useState("");
   const [ description, setDescription ] = useState("");
-  const [ formTags, setTags ] = useState([]);
   const [ errors, setErrors ] = useState([]);
-  const { store : { READ_ONLY, course, tags } } = useContainer();
   const singleInputRef = useRef(null);
   const multipleInputRef = useRef(null);
   const tagsRef = useRef(null);
@@ -33,9 +32,7 @@ const UploadFile = () => {
     data.append('description', description);
     data["tags"] = Array.from(tagsRef.current.selectedOptions).map(x => x.value);
     axios.post(Urls.document_put(course.slug), data, {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
+      headers: { 'content-type': 'multipart/form-data' }
     })
     .then(res => {
       setIsSuccess(true);
@@ -52,14 +49,12 @@ const UploadFile = () => {
     for (var file of multipleInputRef.current.files) {
       data.append('files', file);
     }
-    // data.append('files', singleInputRef.current.files);
     axios.post(Urls.document_put_multiple(course.slug), data, {
       headers: {
         'content-type': 'multipart/form-data'
       }
     })
     .then(res => {
-      console.log("okokoko")
       setIsSuccess(true);
     })
     .catch(err => {
@@ -81,7 +76,7 @@ const UploadFile = () => {
   return (
     <div className="row">
       <div className="large-12 columns">
-        { READ_ONLY &&
+        { window.READ_ONLY &&
           <div>
             <br/>
             <div data-alert className="alert-box warning radius">
@@ -107,8 +102,7 @@ const UploadFile = () => {
         </ul>
         <div className="tabs-content">
           <div className="content active" id="upload-tab-1">
-            <form method="post"
-              encType="multipart/form-data" className="dropzone">
+            <form method="post" className="dropzone">
               <p>Vous pouvez uploader à peu près n'importe quel type de document. DocHub accepte les pdf, jpg, png, doc(x), ppt(x), odt, et bien plus encore.</p>
               <p>Complétez une brève description du document afin d'aider tout le monde à trouver les informations plus efficacement. Vous pourrez encore les éditer plus tard s'il le faut.</p>
 
@@ -149,15 +143,14 @@ const UploadFile = () => {
                 <br/>
                 <input type="submit"
                   onClick={ uploadSingle }
-                  className={"button success radius"+(READ_ONLY && " disabled")}
+                  className={"button success radius"+(window.READ_ONLY && " disabled")}
                   value="Upload" />
               </p>
             </form>
           </div>
 
           <div className="content" id="upload-tab-n">
-            <form method="post"
-              encType="multipart/form-data" className="dropzone">
+            <form method="post" className="dropzone">
               <p>Vous pouvez uploader à peu près n'importe quel type de document. DocHub accepte les pdf, jpg, png, doc(x), ppt(x), odt, et bien plus encore.</p>
               <p>Vous pourrez éditer la description et les tags de chaque document individuellement par après</p>
 
@@ -179,7 +172,7 @@ const UploadFile = () => {
 
               <p className="text-right">
                 <input type="submit"
-                  className={ "button success radius"+ (READ_ONLY && "disabled") }
+                  className={ "button success radius"+ (window.READ_ONLY && "disabled") }
                   value="Upload"
                   onClick={ uploadMultiple } />
               </p>
@@ -191,6 +184,11 @@ const UploadFile = () => {
   )
 }
 
+const formatEndpoint = args => {
+  return "/api"+Urls.course_show(...args);
+}
+
 export default with_fetch(UploadFile, [
-  { prefix: '/spa' }
+  { endpoint: '/api/tags/', store_as: 'tags', flatten: true },
+  { format: [formatEndpoint, ["slug"]], store_as: 'course' }
 ]);

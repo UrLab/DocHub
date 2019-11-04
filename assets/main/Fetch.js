@@ -9,18 +9,43 @@ const zipf = (a1, a2, f) => {
   }, {})
 }
 
-const fetch_all = ({props, ref, setStore, get_url, is_reload}) => {
+const filtered = (params, keys) => {
+  var res = [];
+  for (var key of keys) {
+    res.push(params[key])
+  }
+  return res
+}
+
+const get_url = (format, endp, pref, location, params) => {
+  return ( !endp ?
+    ( !pref ?
+      ( !format ?
+        location.pathname
+      :
+        format[0](filtered(params, format[1]))
+      )
+    :
+      pref+location.pathname
+    )
+  :
+    endp
+  )
+}
+
+const fetch_all = ({props, ref, setStore, location, params, is_reload}) => {
   const filtered_props = props.filter(({refetch_on_params_change}) => (
     !is_reload || !!refetch_on_params_change
   ));
 
   axios.all(
-    filtered_props.map(({ endpoint, prefix }) => {
-      const url = get_url(endpoint, prefix);
+    filtered_props.map(({ format, endpoint, prefix }) => {
+      const url = get_url(format, endpoint, prefix, location, params);
       return axios.get(url)
     })
   ).then(axios.spread((...all_res) => {
-    const newStore = zipf(all_res, filtered_props, ( { data }, { store_as } ) => {
+    const newStore = zipf(all_res, filtered_props, ( { data }, { store_as, flatten } ) => {
+      if (!!flatten) data = data.results;
       return ( !store_as ? data : { [store_as] : data } )
     })
     ref.current = false;
@@ -38,6 +63,38 @@ const fetch_all = ({props, ref, setStore, get_url, is_reload}) => {
   })
 }
 
+export const useFetch = () => {
+  const { setStore } = useContainer();
+  const location = useLocation();
+  const params = useParams();
+
+  return props => {
+    if (!Array.isArray(props)) {
+        props = [ props ]
+    }
+    axios.all(
+      props.map(({ format, endpoint, prefix }) => {
+        const url = get_url(format, endpoint, prefix, location, params);
+        return axios.get(url)
+      })
+    ).then(axios.spread((...all_res) => {
+      const newStore = zipf(all_res, props, ( { data }, { store_as } ) => {
+        return ( !store_as ? data : { [store_as] : data } )
+      })
+      setStore(newStore)
+    }))
+    .catch(err => {
+      console.log(err)
+      for (var {ignore_failure} of props) {
+        if (ignore_failure) {
+          setStore({})
+          break;
+        }
+      }
+    })
+  }
+}
+
 const Fetch = ({children, props}) => {
   if (!Array.isArray(props)) {
       props = [ props ]
@@ -46,19 +103,8 @@ const Fetch = ({children, props}) => {
   const location = useLocation();
   const ref = useRef(true);
 
-  const get_url = (endp, pref) => {
-    return ( !endp ?
-      ( !pref ?
-        location.pathname
-      :
-        pref+location.pathname
-      )
-    :
-      endp
-    )
-  }
   useEffect(() => {
-    fetch_all({props, ref, setStore, get_url, is_reload: false})
+    fetch_all({props, ref, setStore, location, params, is_reload: false})
   }, [])
 
 
@@ -68,7 +114,7 @@ const Fetch = ({children, props}) => {
 
   useEffect(() => {
     if (!!oldLocRef.current) {
-      fetch_all({props, ref, setStore, get_url, is_reload: true})
+      fetch_all({props, ref, setStore, location, params, is_reload: true})
     }
     oldLocRef.current = location;
   }, [params])

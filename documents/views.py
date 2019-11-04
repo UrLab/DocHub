@@ -37,8 +37,7 @@ def spa_upload_file(request, slug):
     tagSerial = TagSerializer(tags, many=True)
     return JsonResponse(dict(
         course = courseSerial.data,
-        tags = tagSerial.data,
-        READ_ONLY = settings.READ_ONLY
+        tags = tagSerial.data
     ))
 
 @login_required
@@ -112,19 +111,30 @@ def document_edit(request, pk):
     doc = get_object_or_404(Document, id=pk)
 
     if not request.user.write_perm(obj=doc):
-        return HttpResponse('You may not edit this document.', status=403)
+        return JsonResponse(dict(
+            errors = dict(
+                field = 'form',
+                error = 'You may not edit this document.'
+        )), status = 403)
 
     if request.method == 'POST':
         if settings.READ_ONLY:
-            return HttpResponse('Upload is disabled for a few hours', status=401)
+            return JsonResponse(dict(
+                errors = dict(
+                    field = 'form',
+                    error = 'Editing is disabled for a few hours'
+            )), status = 401)
 
         form = FileForm(request.POST)
+        print(request.POST.keys())
 
         if form.is_valid():
             doc.name = form.cleaned_data['name']
             doc.description = form.cleaned_data['description']
 
             doc.tags.clear()
+            print("coucou")
+            print(form.cleaned_data['tags'])
             for tag in form.cleaned_data['tags']:
                 doc.tags.add(Tag.objects.get(name=tag))
 
@@ -132,20 +142,10 @@ def document_edit(request, pk):
 
             action.send(request.user, verb="a édité", action_object=doc, target=doc.course)
 
-            return HttpResponseRedirect(reverse('document_show', args=[doc.id]))
-
-    else:
-        form = FileForm({
-            'name': doc.name,
-            'description': doc.description,
-            'tags': doc.tags.all()
-        })
-
-    return render(request, 'documents/document_edit.html', {
-        'form': form,
-        'doc': doc,
-    })
-
+            return JsonResponse({})
+        else:
+            errors = get_form_errors(form)
+            return JsonResponse(dict(errors=errors), status=500)
 
 @login_required
 def document_reupload(request, pk):
@@ -190,22 +190,3 @@ def document_reupload(request, pk):
         form = ReUploadForm()
 
     return render(request, 'documents/document_reupload.html', {'form': form, 'document': document})
-
-
-def document_show(request, pk):
-    document = get_object_or_404(Document, pk=pk)
-
-    if not request.user.is_authenticated:
-        return render(request, "documents/noauth/viewer.html", {"document": document})
-
-    if document.state != "DONE":
-        return HttpResponseRedirect(reverse('course_show', args=(document.course.slug,)))
-
-    context = {
-        "document": document,
-    }
-
-    document.views = F('views') + 1
-    document.save(update_fields=['views'])
-
-    return render(request, "documents/viewer.html", context)

@@ -33,7 +33,7 @@ const Nav = () => {
                     style={{
                       color: "#cf2a0e" ? user.notification_count > 0 : ""
                     }}/>
-                  {" "}<span>{user.notification_count}</span>
+                  {' '}<span>{user.notification_count}</span>
                 </Link>
               </li>
               <li className="has-form">

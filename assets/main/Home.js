@@ -30,7 +30,7 @@ const Home = () => {
                     <span className="course-label secondary radius label recent-blob fixed-label">
                       { doc.course.slug }
                     </span>
-                    {" "}{ doc.name.substring(0, 40) }
+                    {' '}{ doc.name.substring(0, 40) }
                   </Link>
                 </li>
               ))}
@@ -45,7 +45,7 @@ const Home = () => {
                     <span className="course-label success radius label fixed-label">
                       { course.slug }
                     </span>
-                    {" "}{ course.name.substring(0, 40) }
+                    {' '}{ course.name.substring(0, 40) }
                   </Link>
                 </li>
               ))}
@@ -65,9 +65,9 @@ const Home = () => {
               Les cours de DocHub sont classés par faculté ici à droite ou via le menu dans
               <span className="label secondary radius">
                 <i className="fi-torso"></i>
-                {" "}{ user.first_name }
-                {" "}<i className="fi-play"></i>
-                {" "}Mes cours
+                {' '}{ user.first_name }
+                {' '}<i className="fi-play"></i>
+                {' '}Mes cours
               </span>.<br/>
               Tu peux aussi directement chercher ton cours dans la barre de recherche.
             </p>
@@ -79,7 +79,7 @@ const Home = () => {
                 <li key={ fac.id } className="catalog-option">
                   <Link to={ Urls["category_show"](fac.id) }>
                     <i className="fi-folder round-icon small"></i>
-                    {" "}{ fac.name }
+                    {' '}{ fac.name }
                   </Link>
                 </li>
               ))}
@@ -90,8 +90,8 @@ const Home = () => {
       <div className="row">
         <div className="large-12 columns feed">
           <h4>Flux d'actualités</h4>
-          { stream.map(action => (
-            <FeedEntry key={action.id} action={action} />
+          { stream.map((action, i) => (
+            <FeedEntry key={i} action={action} />
           ))}
           { stream.length==0 &&
             <span>
@@ -112,7 +112,7 @@ const Home = () => {
                         <i className="fi-cloud"></i>
                         <img src="//placehold.it/40x40" className="feed-photo"/> John Doe a commenté
                       </strong>
-                      {" "}"Question pour l'examen" dans Bases Fondamentales (base-f-100)
+                      {' '}"Question pour l'examen" dans Bases Fondamentales (base-f-100)
                       <br/>
                       <span className="feed-timesince">
                         Il y a 10 minutes

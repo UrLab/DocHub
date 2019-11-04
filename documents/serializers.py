@@ -27,6 +27,13 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
             context={'request': self.context['request']}
         ).data
 
+    views = serializers.SerializerMethodField()
+
+    def get_views(self, document):
+        document.views += 1
+        document.save(update_fields=['views'])
+        return document.views
+
     tags = TagSerializer(read_only=True, many=True)
 
     user = SmallUserSerializer(read_only=True)
@@ -48,7 +55,7 @@ class DocumentSerializer(serializers.HyperlinkedModelSerializer):
 
         read_only_fields = (
             'course', 'date', 'downloads', 'file_size',
-            'file_type', 'has_perm', 'id', 'is_processing',
+            'file_type', 'has_perm', 'id', 'is_pdf', 'is_processing',
             'is_ready', 'is_unconvertible', 'md5', 'pages', 'state',
             'url', 'user', 'user_vote', 'views', 'votes',
             'original_url', 'pdf_url', 'imported',

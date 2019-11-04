@@ -57,7 +57,7 @@ const Categories = () => {
                       }
 
                       <Link to={ Urls.course_show(course.slug) }>
-                        {" "}{ course.name }
+                        {' '}{ course.name }
                       </Link>
 
                       { followed &&

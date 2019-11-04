@@ -27,7 +27,7 @@ mf_path = mf_redirect_to(www.views.index)
 urlpatterns = [
     path("", www.views.index, name="index"),
 
-    path("spa/", include("www.spa_urls")),
+    path("spa/", www.views.spa_index),
 
     path("admin/", admin.site.urls),
     path("api/", include("www.rest_urls")),
@@ -35,7 +35,8 @@ urlpatterns = [
     # only here for 'django_js_reverse'
     path("categories/<int:pk>/", www.views.index, name="category_show"),
     path("courses/<slug:slug>/", www.views.index, name="course_show"),
-
+    path("notifications/", www.views.index, name="notifications"),
+    path("documents/<int:pk>/", www.views.index, name="document_show"),
 
     path("catalog/", include("catalog.urls")),
     path("documents/", include("documents.urls")),

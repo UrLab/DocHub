@@ -10,9 +10,6 @@ module.exports = {
         tree: [
             './assets/tree/index.js',
         ],
-        viewer: [
-            './assets/viewer/index.js',
-        ],
         styles: [
             './assets/styles/index.js',
         ],
