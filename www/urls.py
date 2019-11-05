@@ -10,6 +10,7 @@ from django.contrib.sitemaps.views import sitemap
 import django_js_reverse.views
 from django.conf.urls import url
 
+import catalog.views
 import users.views
 import www.views
 from www.helpers import mf_redirect_to
@@ -28,6 +29,7 @@ urlpatterns = [
     path("", www.views.index, name="index"),
 
     path("spa/", www.views.spa_index),
+    path("spa/subscribed_courses/", catalog.views.spa_show_courses),
 
     path("admin/", admin.site.urls),
     path("api/", include("www.rest_urls")),
@@ -37,6 +39,7 @@ urlpatterns = [
     path("courses/<slug:slug>/", www.views.index, name="course_show"),
     path("notifications/", www.views.index, name="notifications"),
     path("documents/<int:pk>/", www.views.index, name="document_show"),
+    path("catalog/subscribed_courses/", www.views.index, name="show_courses"),
 
     path("catalog/", include("catalog.urls")),
     path("documents/", include("documents.urls")),

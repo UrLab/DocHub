@@ -46,7 +46,11 @@ def suggest(target_user, K=15):
         best_matches.update(differences)
 
     try:
-        return [(Course.objects.get(id=course_id), hits) for course_id, hits in best_matches.most_common()]
+        return [
+            (CourseSerializer(Course.objects.get(id=course_id)).data, hits)
+            for course_id, hits
+            in best_matches.most_common()
+        ]
     except:
         # Ugly fix to avoid crashing the page if we don't compute the courses
         # TODO log the error (DoesNotExist: Course matching query does not exist.)

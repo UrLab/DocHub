@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Tag from './Tag.js';
 import Cookies from 'js-cookie';
+import { Link } from 'react-router-dom';
 
 import { markdown } from 'markdown';
 import moment from 'moment';
@@ -50,18 +51,18 @@ const CourseDocument = ({
               <i className="fi-download dark-grey"/> Télécharger
             </a>
             {' '}{ is_ready && editable &&
-              <a href={ Urls.document_edit(id) }
+              <Link to={ Urls.document_edit(id) }
                 title="Éditer"
                 className="radius label tiny secondary">
                 <i className="fi-pencil dark-grey"/> Editer
-              </a>
+              </Link>
             }
             {' '}{ is_ready && editable &&
-              <a href={ Urls.document_reupload(id) }
+              <Link to={ Urls.document_reupload(id) }
                 className="radius label tiny secondary">
                 <i className="fi-page-add dark-grey"
                   title="Ré-uploader"/> Ré-uploader
-              </a>
+              </Link>
             }
           </div>
           <h5>

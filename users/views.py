@@ -65,7 +65,8 @@ def panel_hide(request):
     request.user.welcome = False
     request.user.save()
 
-    return HttpResponseRedirect(reverse('index'))
+    serial = UserSerializer(request.user)
+    return JsonResponse(dict(user=serial.data))
 
 
 def auth(request):

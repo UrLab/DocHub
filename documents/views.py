@@ -23,11 +23,14 @@ from tags.serializers import TagSerializer
 from catalog.serializers import ShortCourseSerializer
 from www.helpers import get_form_errors
 
-READ_ONLY_ERROR_RESPONSE = JsonResponse(dict(
-    errors = dict(
-        field = 'form',
-        error = 'Upload is disabled for a few hours'
-)), status = 401)
+def error_response(status, error, field='form'):
+    return JsonResponse(dict(
+        errors = dict(
+            field = field,
+            error = error
+    )), status = status)
+
+READ_ONLY_ERROR_RESPONSE = error_response(401, 'Upload is disabled for a few hours')
 
 @login_required
 def spa_upload_file(request, slug):
@@ -111,30 +114,19 @@ def document_edit(request, pk):
     doc = get_object_or_404(Document, id=pk)
 
     if not request.user.write_perm(obj=doc):
-        return JsonResponse(dict(
-            errors = dict(
-                field = 'form',
-                error = 'You may not edit this document.'
-        )), status = 403)
+        return error_response(403, 'You may not edit this document.')
 
     if request.method == 'POST':
         if settings.READ_ONLY:
-            return JsonResponse(dict(
-                errors = dict(
-                    field = 'form',
-                    error = 'Editing is disabled for a few hours'
-            )), status = 401)
+            return error_response(401, 'Editing is disabled for a few hours')
 
         form = FileForm(request.POST)
-        print(request.POST.keys())
 
         if form.is_valid():
             doc.name = form.cleaned_data['name']
             doc.description = form.cleaned_data['description']
 
             doc.tags.clear()
-            print("coucou")
-            print(form.cleaned_data['tags'])
             for tag in form.cleaned_data['tags']:
                 doc.tags.add(Tag.objects.get(name=tag))
 
@@ -152,14 +144,14 @@ def document_reupload(request, pk):
     document = get_object_or_404(Document, pk=pk)
 
     if not request.user.write_perm(obj=document):
-        return HttpResponse('You may not edit this document.', status=403)
+        return error_response(403, 'You may not edit this document.')
 
     if document.state != "DONE":
-        return HttpResponse('You may not edit this document while it is processing.', status=403)
+        return error_response(403, 'You may not edit this document while it is processing.')
 
     if request.method == 'POST':
         if settings.READ_ONLY:
-            return HttpResponse('Upload is disabled for a few hours', status=401)
+            return error_response(401, 'Upload is disabled for a few hours')
 
         form = ReUploadForm(request.POST, request.FILES)
 
@@ -184,9 +176,7 @@ def document_reupload(request, pk):
                 target=document.course
             )
 
-            return HttpResponseRedirect(reverse('course_show', args=(document.course.slug,)))
-
-    else:
-        form = ReUploadForm()
-
-    return render(request, 'documents/document_reupload.html', {'form': form, 'document': document})
+            return JsonResponse({})
+        else:
+            errors = get_form_errors(form)
+            return JsonResponse(dict(errors=errors), status=500)

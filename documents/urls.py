@@ -14,8 +14,9 @@ urlpatterns = [
         ["POST"],
         name="document_put"),
 
-    path("multiple_upload/<slug:slug>",
+    mf_path("multiple_upload/<slug:slug>",
         documents.views.upload_multiple_files,
+        ["POST"],
         name="document_put_multiple"),
 
     mf_path("<int:pk>/edit",
@@ -23,8 +24,9 @@ urlpatterns = [
         ["POST"],
         name="document_edit"),
 
-    path("<int:pk>/reupload",
+    mf_path("<int:pk>/reupload",
         documents.views.document_reupload,
+        ["POST"],
         name="document_reupload"),
 
 ]

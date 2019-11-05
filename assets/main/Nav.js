@@ -60,7 +60,7 @@ const Nav = () => {
                       </li>
                       { user.is_staff &&
                         <li>
-                          <a href="/admin">
+                          <a href="/admin/">
                             <i className="fi-widget"/>&nbsp; Admin
                           </a>
                         </li>

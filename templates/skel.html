@@ -1,4 +1,4 @@
-{% load humanize %}
+{%load humanize %}
 {% load render_bundle from webpack_loader %}
 
 
@@ -14,6 +14,19 @@
     <meta property="og:description" content="DocHub vous permet de poser des questions aux autres étudiants, échanger vos notes, vos résumés, d'anciens examens et bien plus encore. " />
     <title>{% block title %}DocHub{% endblock %}</title>
 
+    {% if RAVEN_DSN %}
+        <script src="https://cdn.ravenjs.com/3.24.0/raven.min.js" crossorigin="anonymous"></script>
+        <script>
+            Raven.config('{{RAVEN_DSN}}').install()
+            Raven.setUserContext({
+                email: '{{request.user.email}}',
+                id: {{request.user.id}},
+                netid: '{{request.user.netid}}',
+                inferred_faculty: '{{request.user.inferred_faculty}}',
+                inscription_faculty: '{{request.user.inscription_faculty}}',
+            })
+        </script>
+    {% endif %}
     {% render_bundle 'commons' %}
     {% render_bundle 'styles' %}
 
@@ -29,10 +42,6 @@
     <script src="https://cdn.jsdelivr.net/foundation/5.5.3/js/foundation.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/foundation-icons/3.0/foundation-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/foundation/5.5.3/css/foundation.min.css">
-
-    <script type="text/javascript">
-      window.READ_ONLY = {{ READ_ONLY | yesno:"true,false" }};
-    </script>
 
     {% render_bundle 'main' %}
 
@@ -51,8 +60,72 @@
     {% block script %}{% endblock %}
 
 
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        messageStyle: "none",
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script type="text/javascript" async
+      src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-89986937-2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-
+      {% if request.user.is_authenticated %}
+          gtag('config', 'UA-89986937-2', {
+            'user_id': '{{ request.user.id }}',
+            'custom_map': {
+                'dimension1': 'inscription_faculty',
+                'dimension2': 'inferred_faculty',
+            },
+          });
+          gtag('event', 'page_view', {
+              'inscription_faculty': '{{request.user.inscription_faculty}}',
+              'inferred_faculty': '{{request.user.inferred_faculty}}',
+          });
+      {% else %}
+          gtag('config', 'UA-89986937-2');
+      {% endif %}
+    </script>
+    <!-- Start of Async Drift Code -->
+    <script>
+    !function() {
+      var t;
+      if (t = window.driftt = window.drift = window.driftt || [], !t.init) return t.invoked ? void (window.console && console.error && console.error("Drift snippet included twice.")) : (t.invoked = !0,
+      t.methods = [ "identify", "config", "track", "reset", "debug", "show", "ping", "page", "hide", "off", "on" ],
+      t.factory = function(e) {
+        return function() {
+          var n;
+          return n = Array.prototype.slice.call(arguments), n.unshift(e), t.push(n), t;
+        };
+      }, t.methods.forEach(function(e) {
+        t[e] = t.factory(e);
+      }), t.load = function(t) {
+        var e, n, o, i;
+        e = 3e5, i = Math.ceil(new Date() / e) * e, o = document.createElement("script"),
+        o.type = "text/javascript", o.async = !0, o.crossorigin = "anonymous", o.src = "https://js.driftt.com/include/" + i + "/" + t + ".js",
+        n = document.getElementsByTagName("script")[0], n.parentNode.insertBefore(o, n);
+      });
+    }();
+    drift.SNIPPET_VERSION = '0.3.1';
+    drift.load('dzkrmavg2zw3');
+    </script>
+    <!-- End of Async Drift Code -->
+    <script>
+        drift.identify(
+            {{request.user.id}},
+            {
+                email:'{{request.user.email}}',
+                startDate: '{{request.user.created|date:"U"}}000',
+                inferred_faculty: '{{request.user.inferred_faculty}}',
+                inscription_faculty: '{{request.user.inscription_faculty}}',
+            }
+        );
+    </script>
   </body>
 </html>

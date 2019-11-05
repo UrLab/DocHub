@@ -13,7 +13,7 @@ const Footer = () => {
       {' '}- <a href="https://cerkinfo.be">
           <img style={{height: "1.0em"}} src="/static/images/ci.png"/>
         </a>
-      - <a href="/api">API</a>
+      - <a href="/api/">API</a>
       <br/><br/>
     </footer>
   )

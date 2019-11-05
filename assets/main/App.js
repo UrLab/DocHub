@@ -17,6 +17,8 @@ import UploadFile from './UploadFile.js';
 import Notification from './Notification.js';
 import Documents from './Documents.js';
 import DocumentEdit from './DocumentEdit.js';
+import DocumentReupload from './DocumentReupload.js';
+import MyCourses from './MyCourses.js';
 import Footer from './Footer.js';
 
 const App = () => {
@@ -34,6 +36,8 @@ const App = () => {
             <Route path={ Urls.notifications() } component={ Notification } />
             <Route exact path="/documents/:id" component={ Documents } />
             <Route path="/documents/:id/edit" component={ DocumentEdit } />
+            <Route path="/documents/:id/reupload" component={ DocumentReupload } />
+            <Route path={ Urls.show_courses() } component={ MyCourses } />
           </Switch>
         </div>
         <Footer/>

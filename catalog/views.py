@@ -21,6 +21,7 @@ from catalog.models import Category, Course
 from catalog.suggestions import suggest
 from catalog.forms import SearchForm
 from users.serializers import UserSerializer
+from catalog.serializers import CategorySerializer
 import search.logic
 
 def set_follow_course(request, slug, action):
@@ -44,13 +45,17 @@ def leave_course(request, slug):
 
 
 @login_required
-def show_courses(request):
-    end_of_year = timezone.now().month in [7, 8, 9, 10]
-    return render(request, "catalog/my_courses.html", {
-        "faculties": Category.objects.get(level=0).children.all(),
-        "suggestions": suggest(request.user),
-        "show_unfollow_all_button": end_of_year
-    })
+def spa_show_courses(request):
+    categories = Category.objects.get(level=0).children.all()
+    serial = CategorySerializer(
+        categories,
+        many=True,
+        context=dict(request=request)
+    )
+    return JsonResponse(dict(
+        faculties=serial.data,
+        suggestions=suggest(request.user)
+    ))
 
 
 @cache_page(60 * 60)

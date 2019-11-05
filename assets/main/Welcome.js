@@ -1,6 +1,20 @@
 import React from 'react';
+import axios from 'axios';
+import { useContainer } from './store';
 
 const Welcome = () => {
+  const { setStore } = useContainer();
+
+  const hide_new_panel = e => {
+    axios.get(Urls["hide_new_panel"]())
+    .then(res => {
+      setStore(res.data)
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
   return (
     <span>
       <br/>
@@ -12,7 +26,7 @@ const Welcome = () => {
               <h3>DocHub a maintenant tous les documents de Respublicae !</h3>
             </div>
             <div className="small-1 columns text-right">
-              <a href={ Urls["hide_new_panel"]() }><i className="fi-x"></i></a>
+              <a onClick={ hide_new_panel }><i className="fi-x" /></a>
             </div>
           </div>
           <div className="row">
